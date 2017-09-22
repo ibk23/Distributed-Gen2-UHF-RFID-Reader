@@ -148,8 +148,8 @@ namespace gr {
       float result=0;
       int prev = 1;
       
-      int number_steps = 20;
-      float min_val = n_samples_TAG_BIT/2.0 -  n_samples_TAG_BIT/2.0/100, max_val = n_samples_TAG_BIT/2.0 +  n_samples_TAG_BIT/2.0/100;
+      int number_steps = n_samples_TAG_BIT * (float)0.065 / (float)0.01;
+      float min_val = n_samples_TAG_BIT/2.0 -  n_samples_TAG_BIT/2.0*0.065, max_val = n_samples_TAG_BIT/2.0 +  n_samples_TAG_BIT/2.0*0.065;
 
       std::vector<float> energy;
 

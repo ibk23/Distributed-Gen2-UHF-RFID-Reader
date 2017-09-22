@@ -2,18 +2,18 @@
 <block>
   <name>tag_decoder</name>
   <key>rfid_tag_decoder</key>
-  <category>rfid</category>
+  <category>[RFID]</category>
   <import>import rfid</import>
-  <make>rfid.tag_decoder()</make>
+  <make>rfid.tag_decoder($sample_rate)</make>
   <!-- Make one 'param' node for every Parameter you want settable from the GUI.
        Sub-nodes:
        * name
        * key (makes the value accessible as $keyname, e.g. in the make node)
        * type -->
   <param>
-    <name>...</name>
-    <key>...</key>
-    <type>...</type>
+    <name>Sample rate</name>
+    <key>sample_rate</key>
+    <type>int</type>
   </param>
 
   <!-- Make one 'sink' node per input. Sub-nodes:
@@ -23,7 +23,7 @@
        * optional (set to 1 for optional inputs) -->
   <sink>
     <name>in</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <type>complex</type>
   </sink>
 
   <!-- Make one 'source' node per output. Sub-nodes:
@@ -32,7 +32,11 @@
        * vlen
        * optional (set to 1 for optional inputs) -->
   <source>
-    <name>out</name>
-    <type><!-- e.g. int, float, complex, byte, short, xxx_vector, ...--></type>
+    <name>out float</name>
+    <type>float</type>
+  </source>
+  <source>
+    <name>out complex</name>
+    <type>complex</type>
   </source>
 </block>
