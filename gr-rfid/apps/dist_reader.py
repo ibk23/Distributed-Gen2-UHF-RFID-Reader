@@ -10,6 +10,7 @@ from gnuradio import qtgui
 import rfid
 
 DEBUG = True
+DISTRIBUTED = True
 
 class reader_top_block(gr.top_block):
 
@@ -41,7 +42,25 @@ class reader_top_block(gr.top_block):
     self.sink.set_center_freq(self.freq, 0)
     self.sink.set_gain(self.tx_gain, 0)
     self.sink.set_antenna("TX/RX", 0)
+
+  #Configure second sink (i.e. a distributed source)
+  #TODO Allow for n sinks. Eg [['192.168.10.3','fc32'],['192.168.10.4','fc32']] -> [<sink obj 1>, <sink obj 2>]
+  #These can then be linked using for each sink in sink_list: connect...
+  def dist_u_sink(self):
+    self.dist_sink = uhd.usrp_sink(
+    device_addr=self.dist_usrp_address_sink,
+    stream_args=uhd.stream_args(
+    cpu_format="fc32",
+    channels=range(1),
+    ),
+    )
+    self.sink.set_samp_rate(self.dac_rate)
+    self.sink.set_center_freq(self.dist_freq, 0)
+    self.sink.set_gain(self.tx_gain, 0)
+    self.sink.set_antenna("TX/RX", 0)
     
+
+  
   def __init__(self):
     gr.top_block.__init__(self)
 
@@ -59,6 +78,7 @@ class reader_top_block(gr.top_block):
 
     self.usrp_address_source = "addr=192.168.10.2,recv_frame_size=256"
     self.usrp_address_sink   = "addr=192.168.10.2,recv_frame_size=256"
+    self.dist_usrp_address_sink   = "addr=192.168.10.3,recv_frame_size=256"
 
     # Each FM0 symbol consists of ADC_RATE/BLF samples (2e6/40e3 = 50 samples)
     # 10 samples per symbol after matched filtering and decimation
@@ -80,10 +100,11 @@ class reader_top_block(gr.top_block):
     self.to_complex      = blocks.float_to_complex()
 
     if (DEBUG == False) : # Real Time Execution
-
       # USRP blocks
       self.u_source()
       self.u_sink()
+      if (DISTRIBUTED):
+        self.dist_u_sink()
 
       ######## Connections #########
       self.connect(self.source,  self.matched_filter)
@@ -94,6 +115,8 @@ class reader_top_block(gr.top_block):
       self.connect(self.reader, self.amp)
       self.connect(self.amp, self.to_complex)
       self.connect(self.to_complex, self.sink)
+      if (DISTRIBUTED):
+        self.connect(self.to_complex, self.dist_sink)
 
       #File sinks for logging (Remove comments to log data)
       #self.connect(self.source, self.file_sink_source)
