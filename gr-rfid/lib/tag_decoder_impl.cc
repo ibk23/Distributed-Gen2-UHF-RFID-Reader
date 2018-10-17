@@ -346,13 +346,13 @@ namespace gr {
             reader_state->reader_stats.n_epc_correct+=1;
 
             int result = 0;
-            for(int i = 0 ; i < 8 ; ++i)
+            for(int i = 0 ; i < 16 ; ++i)
             {
-              result += std::pow(2,7-i) * EPC_bits[104+i] ;
+              result += std::pow(2,15-i) * EPC_bits[104+i] ;
             }
             GR_LOG_INFO(d_debug_logger, "EPC CORRECTLY DECODED, TAG ID : " << result);
 
-            // Save part of Tag's EPC message (EPC[104:111] in decimal) + number of reads
+            // Save part of Tag's EPC message (EPC[104:119] in decimal) + number of reads
             std::map<int,int>::iterator it = reader_state->reader_stats.tag_reads.find(result);
             if ( it != reader_state->reader_stats.tag_reads.end())
             {
