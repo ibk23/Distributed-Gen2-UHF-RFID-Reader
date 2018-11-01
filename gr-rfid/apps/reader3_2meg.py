@@ -52,7 +52,7 @@ class reader_top_block(gr.top_block):
     ######## Variables #########
     self.dac_rate = 10e6                 # DAC rate 
     self.adc_rate = 100e6/50            # ADC rate (2MS/s complex samples)
-    self.decim    = 10                    # Decimation (downsampling factor)
+    self.decim    = 5                    # Decimation (downsampling factor)
     self.ampl     = 0.5                  # Output signal amplitude (signal power vary for different RFX900 cards)
     self.tx_freq  = 910e6                # Modulation frequency (can be set between 902-920)
     self.rx_freq  = 912e6
@@ -64,7 +64,7 @@ class reader_top_block(gr.top_block):
 
     # Each FM0 symbol consists of ADC_RATE/BLF samples (2e6/40e3 = 50 samples)
     # 10 samples per symbol after matched filtering and decimation
-    self.num_taps     = [1] * 12 # matched to half symbol period
+    self.num_taps     = [1] * 25 # matched to half symbol period
 
     ######## File sinks for debugging (1 for each block) #########
     self.file_sink_source         = blocks.file_sink(gr.sizeof_gr_complex*1, "../misc/data/source", False)
@@ -88,10 +88,12 @@ class reader_top_block(gr.top_block):
     self.amp              = blocks.multiply_const_ff(self.ampl)
     #NEW
     #self.throttle = blocks.throttle(gr.sizeof_float*1, self.dac_rate,True)
-    #self.high_pass_filter = filter.fir_filter_ccf(1, firdes.high_pass(
-    #    	1, int(self.adc_rate/self.decim), 20000, 10000, firdes.WIN_HAMMING, 6.76))
+    self.high_pass_filter = filter.fir_filter_ccf(1, firdes.high_pass(
+        	1, int(self.adc_rate/self.decim), 5000, 5000, firdes.WIN_HAMMING, 6.76))
     #self.band_pass_filter = filter.fir_filter_ccf(1, firdes.band_pass(
-    #    	1, self.adc_rate/self.decim, 30000, 50000, 2000, firdes.WIN_HAMMING, 6.76))
+    #    	1, self.adc_rate/self.decim, 0, 10000, 2000, firdes.WIN_HAMMING, 6.76))
+    #self.band_reject_filter = filter.fir_filter_ccf(1, firdes.band_reject(
+    #     1, self.adc_rate, 500, 1500, 100, firdes.WIN_HAMMING, 6.76))
     self.analog_sig_source = analog.sig_source_f(self.dac_rate, analog.GR_COS_WAVE, 2000000, 1, 0)
     self.sub = blocks.sub_ff(1)
     self.multiply = blocks.multiply_vff(1)
@@ -113,11 +115,22 @@ class reader_top_block(gr.top_block):
       #self.connect(self.source,  (self.high_pass_filter, 0))
       #self.connect((self.high_pass_filter, 0),self.matched_filter)
       self.connect(self.source,self.matched_filter)
-      self.connect(self.matched_filter, self.gate)
-
-      #self.connect(self.source,  self.matched_filter)
       #self.connect(self.matched_filter,(self.high_pass_filter, 0))
       #self.connect((self.high_pass_filter, 0), self.gate)
+      self.connect(self.matched_filter, self.gate)
+
+      #self.connect(self.source,  (self.band_reject_filter, 0))
+      #self.connect((self.band_reject_filter, 0),self.matched_filter)
+      #self.connect(self.matched_filter, self.gate)
+
+      #self.connect(self.source,self.matched_filter)
+      #self.connect(self.matched_filter,(self.band_reject_filter, 0))
+      #self.connect((self.band_reject_filter, 0), self.gate)
+      
+
+      #self.connect(self.source,  (self.high_pass_filter, 0))
+      #self.connect((self.high_pass_filter, 0),self.matched_filter)
+      #self.connect(self.matched_filter, self.gate)
       #self.connect(self.matched_filter, self.gate)
       #self.connect((self.high_pass_filter, 0),self.file_highpass)
       self.connect((self.matched_filter, 0),self.file_matched_filter)
