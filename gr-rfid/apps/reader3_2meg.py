@@ -23,7 +23,7 @@ class reader_top_block(gr.top_block):
     ),
     )
     self.source.set_samp_rate(self.adc_rate)
-    self.source.set_center_freq(self.freq, 0)
+    self.source.set_center_freq(self.rx_freq, 0)
     self.source.set_gain(self.rx_gain, 0)
     self.source.set_antenna("RX2", 0)
     self.source.set_auto_dc_offset(False) # Uncomment this line for SBX daughterboard
@@ -38,7 +38,7 @@ class reader_top_block(gr.top_block):
     ),
     )
     self.sink.set_samp_rate(self.dac_rate)
-    self.sink.set_center_freq(self.freq, 0)
+    self.sink.set_center_freq(self.tx_freq, 0)
     self.sink.set_gain(self.tx_gain, 0)
     self.sink.set_antenna("TX/RX", 0)
     
@@ -51,11 +51,12 @@ class reader_top_block(gr.top_block):
     ######## Variables #########
     self.dac_rate = 10e6                 # DAC rate 
     self.adc_rate = 100e6/50            # ADC rate (2MS/s complex samples)
-    self.decim     = 5                    # Decimation (downsampling factor)
+    self.decim    = 5                    # Decimation (downsampling factor)
     self.ampl     = 0.5                  # Output signal amplitude (signal power vary for different RFX900 cards)
-    self.freq     = 910e6                # Modulation frequency (can be set between 902-920)
-    self.rx_gain   = 10                 # RX Gain (gain at receiver)
-    self.tx_gain   = 10                    # RFX900 no Tx gain option
+    self.tx_freq  = 910e6                # Modulation frequency (can be set between 902-920)
+    self.rx_freq  = 912e6
+    self.rx_gain  = 10                 # RX Gain (gain at receiver)
+    self.tx_gain  = 10                    # RFX900 no Tx gain option
 
     self.usrp_address_source = "addr=192.168.10.2,recv_frame_size=256"
     self.usrp_address_sink   = "addr=192.168.10.2,recv_frame_size=256"
@@ -88,7 +89,7 @@ class reader_top_block(gr.top_block):
     self.analog_sig_source = analog.sig_source_f(self.dac_rate, analog.GR_COS_WAVE, 2000000, 1, 0)
     self.sub = blocks.sub_ff(1)
     self.multiply = blocks.multiply_vff(1)
-    self.interp_fir_filter = filter.interp_fir_filter_fff(10, ([1]*5))
+    self.interp_fir_filter = filter.interp_fir_filter_fff(10, ([1]*20))
     self.interp_fir_filter.declare_sample_delay(0)
 
     self.analog_const = analog.sig_source_f(0, analog.GR_CONST_WAVE, 0, 0, 0.2)
