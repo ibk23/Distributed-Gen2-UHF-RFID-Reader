@@ -10,7 +10,7 @@ from gnuradio import qtgui
 from gnuradio.filter import firdes
 import rfid
 
-DEBUG = True
+DEBUG = False
 
 class reader_top_block(gr.top_block):
 
@@ -51,7 +51,7 @@ class reader_top_block(gr.top_block):
 
     ######## Variables #########
     self.dac_rate = 10e6                 # DAC rate 
-    self.adc_rate = 100e6/50            # ADC rate (2MS/s complex samples) *
+    self.adc_rate = 5e6#2000e6/50            # ADC rate (2MS/s complex samples) *
     self.decim    = 5                   # Decimation (downsampling factor)
     self.ampl     = 0.5                  # Output signal amplitude (signal power vary for different RFX900 cards)
     self.tx_freq  = 910e6                # Modulation frequency (can be set between 902-920)
@@ -64,7 +64,7 @@ class reader_top_block(gr.top_block):
 
     # Each FM0 symbol consists of ADC_RATE/BLF samples (2e6/40e3 = 50 samples)
     # 10 samples per symbol after matched filtering and decimation
-    self.num_taps     = [1] * 8#int(self.adc_rate/(40e3*self.decim)) # matched to half symbol period
+    self.num_taps     = [1] * int(self.adc_rate/(40e3*self.decim)) # matched to half symbol period
     print("Half symbol length is ",int(self.adc_rate/(2*40e3*self.decim)))
 
     ######## File sinks for debugging (1 for each block) #########
@@ -89,12 +89,12 @@ class reader_top_block(gr.top_block):
     self.amp            = blocks.multiply_const_ff(self.ampl)
 
     #Various filter blocks to use as required
-    self.low_pass_filter = filter.fir_filter_ccf(1, firdes.low_pass(1, int(self.adc_rate/self.decim), 30000, 10000, firdes.WIN_HAMMING, 6.76))
+    #self.low_pass_filter = filter.fir_filter_ccf(1, firdes.low_pass(1, int(self.adc_rate/self.decim), 30000, 10000, firdes.WIN_HAMMING, 6.76))
     #self.band_pass_filter = filter.fir_filter_ccf(1, firdes.band_pass(1, self.adc_rate/self.decim, 0, 10000, 2000, firdes.WIN_HAMMING, 6.76))
     #self.band_reject_filter = filter.fir_filter_ccf(1, firdes.band_reject(1, self.adc_rate, 500, 1500, 100, firdes.WIN_HAMMING, 6.76))
 
     #Sinwave and multiply block for mixing
-    self.analog_sig_source = analog.sig_source_f(self.dac_rate, analog.GR_COS_WAVE, 5000000, 0.8, 0.4)
+    self.analog_sig_source = analog.sig_source_f(self.dac_rate, analog.GR_COS_WAVE, 2000000, 0.8, 0.4)
     self.multiply = blocks.multiply_vff(1)
 
     #Upsample baseband before multiplying by the sinewave
@@ -157,12 +157,12 @@ class reader_top_block(gr.top_block):
 
       # File connections
       self.connect(self.source, self.file_sink_source) # Log the real source
-      self.connect((self.low_pass_filter, 0),self.file_highpass)
+      #self.connect((self.low_pass_filter, 0),self.file_highpass)
       self.connect((self.matched_filter, 0),self.file_matched_filter)
       self.connect((self.multiply, 0), self.file_multiply)
 
     else :  # Offline Data
-      self.file_source = blocks.file_source(gr.sizeof_gr_complex*1, "../misc/data/source",False)     ## instead of uhd.usrp_source
+      self.file_source = blocks.file_source(gr.sizeof_gr_complex*1, "../misc/data/5MHz_separation",False)     ## instead of uhd.usrp_source
       self.file_sink   = blocks.file_sink(gr.sizeof_gr_complex*1,   "../misc/data/file_sink", False) ## instead of uhd.usrp_sink
  
       ######## Connections ######### 
