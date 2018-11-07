@@ -27,7 +27,7 @@ class reader_top_block(gr.top_block):
     self.source.set_center_freq(self.rx_freq, 0)
     self.source.set_gain(self.rx_gain, 0)
     self.source.set_antenna("RX2", 0)
-    #self.source.set_auto_dc_offset(False) # Uncomment this line for SBX daughterboard
+    self.source.set_auto_dc_offset(False) # Uncomment this line for SBX daughterboard
 
   # Configure usrp sink
   def u_sink(self):
@@ -51,12 +51,12 @@ class reader_top_block(gr.top_block):
 
     ######## Variables #########
     self.dac_rate = 10e6                 # DAC rate 
-    self.adc_rate = 100e6/50            # ADC rate (2MS/s complex samples)
-    self.decim    = 5                    # Decimation (downsampling factor)
-    self.ampl     = 0.5                  # Output signal amplitude (signal power vary for different RFX900 cards)
+    self.adc_rate = 100e6/50            # ADC rate (2MS/s complex samples) *
+    self.decim    = 5                   # Decimation (downsampling factor)
+    #self.ampl     = 0.5                  # Output signal amplitude (signal power vary for different RFX900 cards)
     self.tx_freq  = 910e6                # Modulation frequency (can be set between 902-920)
-    self.rx_freq  = 912e6
-    self.rx_gain  = 10                 # RX Gain (gain at receiver)
+    self.rx_freq  = 910e6
+    self.rx_gain  = 25                 # RX Gain (gain at receiver)
     self.tx_gain  = 10                    # RFX900 no Tx gain option
 
     self.usrp_address_source = "addr=192.168.10.2,recv_frame_size=256"
@@ -64,8 +64,8 @@ class reader_top_block(gr.top_block):
 
     # Each FM0 symbol consists of ADC_RATE/BLF samples (2e6/40e3 = 50 samples)
     # 10 samples per symbol after matched filtering and decimation
-    self.num_taps     = [1] * 25 # matched to half symbol period
-
+    self.num_taps     = [1] * 8#int(self.adc_rate/(40e3*self.decim)) # matched to half symbol period
+    print("Half symbol length is ",int(self.adc_rate/(2*40e3*self.decim)))
     ######## File sinks for debugging (1 for each block) #########
     self.file_sink_source         = blocks.file_sink(gr.sizeof_gr_complex*1, "../misc/data/source", False)
     self.file_sink_matched_filter = blocks.file_sink(gr.sizeof_gr_complex*1, "../misc/data/matched_filter", False)
@@ -84,44 +84,44 @@ class reader_top_block(gr.top_block):
     self.matched_filter = filter.fir_filter_ccc(self.decim, self.num_taps);
     self.gate            = rfid.gate(int(self.adc_rate/self.decim))
     self.tag_decoder    = rfid.tag_decoder(int(self.adc_rate/self.decim))
-    self.reader          = rfid.reader(int(self.adc_rate/self.decim),int(1e6))#int(self.dac_rate))
-    self.amp              = blocks.multiply_const_ff(self.ampl)
+    self.reader          = rfid.reader(int(self.adc_rate/self.decim),int(1e6))#int(self.dac_rate))#
+    #self.amp              = blocks.multiply_const_ff(self.ampl)
     #NEW
     #self.throttle = blocks.throttle(gr.sizeof_float*1, self.dac_rate,True)
-    self.high_pass_filter = filter.fir_filter_ccf(1, firdes.high_pass(
-        	1, int(self.adc_rate/self.decim), 5000, 5000, firdes.WIN_HAMMING, 6.76))
+    self.low_pass_filter = filter.fir_filter_ccf(1, firdes.low_pass(
+        	1, int(self.adc_rate/self.decim), 30000, 10000, firdes.WIN_HAMMING, 6.76))
     #self.band_pass_filter = filter.fir_filter_ccf(1, firdes.band_pass(
     #    	1, self.adc_rate/self.decim, 0, 10000, 2000, firdes.WIN_HAMMING, 6.76))
     #self.band_reject_filter = filter.fir_filter_ccf(1, firdes.band_reject(
     #     1, self.adc_rate, 500, 1500, 100, firdes.WIN_HAMMING, 6.76))
-    self.analog_sig_source = analog.sig_source_f(self.dac_rate, analog.GR_COS_WAVE, 2000000, 1, 0)
-    self.sub = blocks.sub_ff(1)
+    self.analog_sig_source = analog.sig_source_f(self.dac_rate, analog.GR_COS_WAVE, 5000000, 0.8, 0.4)
+    #self.sub = blocks.sub_ff(1)
     self.multiply = blocks.multiply_vff(1)
-    self.interp_fir_filter = filter.interp_fir_filter_fff(10, ([1]*20))
-    self.interp_fir_filter.declare_sample_delay(0)
+    self.interp_fir_filter = filter.interp_fir_filter_fff(int(self.dac_rate/1e6), ([1]*50))
+    self.interp_fir_filter.declare_sample_delay(20)
 
-    self.analog_const = analog.sig_source_f(0, analog.GR_CONST_WAVE, 0, 0, 0.2)
+    #self.analog_const = analog.sig_source_f(0, analog.GR_CONST_WAVE, 0, 0, 0.2)
 	
     self.to_complex      = blocks.float_to_complex()
 
     if (DEBUG == False) : # Real Time Execution
 
-      # USRP blocks
+      # USRP blocksq
       self.u_source()
-      #self.source  = blocks.file_source(gr.sizeof_gr_complex*1, "../misc/data/file_source_test",False)   ## instead of uhd.usrp_source
+      self.asource  = blocks.file_source(gr.sizeof_gr_complex*1, "../misc/data/file_source_test",False)   ## instead of uhd.usrp_source
       self.u_sink()
 
       ######## Connections #########
       #self.connect(self.source,  (self.high_pass_filter, 0))
       #self.connect((self.high_pass_filter, 0),self.matched_filter)
-      self.connect(self.source,self.matched_filter)
-      #self.connect(self.matched_filter,(self.high_pass_filter, 0))
-      #self.connect((self.high_pass_filter, 0), self.gate)
-      self.connect(self.matched_filter, self.gate)
-
-      #self.connect(self.source,  (self.band_reject_filter, 0))
-      #self.connect((self.band_reject_filter, 0),self.matched_filter)
+      #self.connect(self.source,self.matched_filter)
+      #self.connect(self.matched_filter,(self.low_pass_filter, 0))
+      #self.connect((self.low_pass_filter, 0), self.gate)
       #self.connect(self.matched_filter, self.gate)
+
+      self.connect(self.asource,  (self.low_pass_filter, 0))
+      self.connect((self.low_pass_filter, 0),self.matched_filter)
+      self.connect(self.matched_filter, self.gate)
 
       #self.connect(self.source,self.matched_filter)
       #self.connect(self.matched_filter,(self.band_reject_filter, 0))
@@ -132,17 +132,17 @@ class reader_top_block(gr.top_block):
       #self.connect((self.high_pass_filter, 0),self.matched_filter)
       #self.connect(self.matched_filter, self.gate)
       #self.connect(self.matched_filter, self.gate)
-      #self.connect((self.high_pass_filter, 0),self.file_highpass)
+      self.connect((self.low_pass_filter, 0),self.file_highpass)
       self.connect((self.matched_filter, 0),self.file_matched_filter)
 
       self.connect(self.gate, self.tag_decoder)
       self.connect((self.tag_decoder,0), self.reader)
-      self.connect(self.reader, self.amp)
-      
+      #self.connect(self.reader, self.amp)
+      self.connect(self.reader,(self.interp_fir_filter, 0))
       
       ########## New Connections ##############
       #self.connect(self.amp, self.to_complex)
-      self.connect(self.amp,(self.interp_fir_filter, 0))
+      #self.connect(self.amp,(self.interp_fir_filter, 0))
       #self.connect((self.throttle, 0),self.file_throttle)
       #self.connect((self.throttle, 0), (self.sub, 1))
       #self.connect((self.analog_const, 0), (self.sub, 0)) 
@@ -155,7 +155,7 @@ class reader_top_block(gr.top_block):
       self.connect((self.multiply, 0), self.to_complex) 
 
       self.connect(self.to_complex, self.sink)
-      self.connect(self.to_complex, self.file_sink)
+      #self.connect(self.to_complex, self.file_sink)
       #File sinks for logging (Remove comments to log data)
       self.connect(self.source, self.file_sink_source)
       #self.connect((self.throttle, 0),self.file_sink_reader)
