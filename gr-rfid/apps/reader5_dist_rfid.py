@@ -4,6 +4,7 @@ from gnuradio import gr
 from gnuradio import uhd
 from gnuradio import blocks
 from gnuradio import filter
+from gnuradio.filter import firdes
 from gnuradio import analog
 from gnuradio import digital
 from gnuradio import qtgui
@@ -24,7 +25,7 @@ class reader_top_block(gr.top_block):
     ),
     )
     self.source.set_samp_rate(self.adc_rate)
-    self.source.set_center_freq(self.freq, 0)
+    self.source.set_center_freq(self.tx_freq_1, 0)
     self.source.set_gain(self.rx_gain, 0)
     self.source.set_antenna("RX2", 0)
     self.source.set_auto_dc_offset(False) # Uncomment this line for SBX daughterboard
@@ -42,10 +43,10 @@ class reader_top_block(gr.top_block):
     self.sink.set_time_source("mimo", 1)
     self.sink.set_samp_rate(self.dac_rate)
     self.sink.set_time_now(uhd.time_spec(time.time()), uhd.ALL_MBOARDS)
-    self.sink.set_center_freq(self.freq, 0)
+    self.sink.set_center_freq(self.tx_freq_1, 0)
     self.sink.set_gain(self.tx_gain, 0)
     self.sink.set_antenna("TX/RX", 0)
-    self.sink.set_center_freq(self.freq, 1)
+    self.sink.set_center_freq(self.tx_freq_2, 1)
     self.sink.set_gain(self.tx_gain, 1)
     self.sink.set_antenna("TX/RX", 1)
     
@@ -56,11 +57,12 @@ class reader_top_block(gr.top_block):
     rt = gr.enable_realtime_scheduling() 
 
     ######## Variables #########
-    self.dac_rate = 2e6                 # DAC rate 
+    self.dac_rate = 1e6                 # DAC rate 
     self.adc_rate = 100e6/50            # ADC rate (2MS/s complex samples)
     self.decim     = 5                    # Decimation (downsampling factor)
     self.ampl     = 0.5                  # Output signal amplitude (signal power vary for different RFX900 cards)
-    self.freq     = 910e6                # Modulation frequency (can be set between 902-920)
+    self.tx_freq_1 = 910e6                # Modulation frequency (can be set between 902-920)
+    self.tx_freq_2 = 911e6                # Modulation frequency (can be set between 902-920)
     self.rx_gain   = 15                  # RX Gain (gain at receiver)
     self.tx_gain   = 15                    # RFX900 no Tx gain option
 
@@ -69,7 +71,7 @@ class reader_top_block(gr.top_block):
 
     # Each FM0 symbol consists of ADC_RATE/BLF samples (2e6/40e3 = 50 samples)
     # 10 samples per symbol after matched filtering and decimation
-    self.num_taps     = [1] * int(self.adc_rate/(2*40e3*self.decim)) # matched to half symbol period
+    self.num_taps     = [1] * 8#int(self.adc_rate/(2*40e3*self.decim)) # matched to half symbol period
     print("Half symbol length is ",int(self.adc_rate/(2*40e3*self.decim)))
     ######## File sinks for debugging (1 for each block) #########
     self.file_sink_source         = blocks.file_sink(gr.sizeof_gr_complex*1, "../misc/data/source", False)
@@ -80,14 +82,15 @@ class reader_top_block(gr.top_block):
     self.file_sink_sink           = blocks.file_sink(gr.sizeof_gr_complex*1, "../misc/data/sink", False)
 
     ######## Blocks #########
-    self.matched_filter  = filter.fir_filter_ccc(self.decim, self.num_taps);
+    self.low_pass  = filter.fir_filter_ccc(self.decim, self.num_taps);
+    #self.low_pass = filter.fir_filter_ccf(5, firdes.low_pass(1, self.adc_rate, 50000, 50000, firdes.WIN_HAMMING, 6.76))
     self.gate            = rfid.gate(int(self.adc_rate/self.decim))
     self.tag_decoder     = rfid.tag_decoder(int(self.adc_rate/self.decim))
     self.reader          = rfid.reader(int(self.adc_rate/self.decim),int(self.dac_rate))
     self.amp             = blocks.multiply_const_ff(self.ampl)
     self.to_complex      = blocks.float_to_complex()
-    self.delay		 = blocks.delay(gr.sizeof_gr_complex*1, 10)
-
+    #self.delay		 = blocks.delay(gr.sizeof_gr_complex*1, 0)
+    
     if (DEBUG == False) : # Real Time Execution
 
       # USRP blocks
@@ -95,17 +98,18 @@ class reader_top_block(gr.top_block):
       self.u_sink()
 
       ######## Connections #########
-      self.connect(self.source,  self.matched_filter)
-      self.connect(self.matched_filter, self.gate)
+      self.connect(self.source,  self.low_pass)
+      self.connect(self.low_pass, self.gate)
 
       self.connect(self.gate, self.tag_decoder)
       self.connect((self.tag_decoder,0), self.reader)
       self.connect(self.reader, self.amp)
       self.connect(self.amp, self.to_complex)
       self.connect(self.to_complex, (self.sink,0))
-      self.connect(self.to_complex, self.delay)
-      self.connect(self.delay, (self.sink,1))
-
+      #self.connect(self.to_complex, self.delay)
+      #self.connect(self.delay, (self.sink,1))
+      self.connect(self.to_complex, (self.sink,1))
+      
       #File sinks for logging (Remove comments to log data)
       #self.connect(self.source, self.file_sink_source)
 
@@ -127,7 +131,7 @@ class reader_top_block(gr.top_block):
     self.connect(self.gate, self.file_sink_gate)
     self.connect((self.tag_decoder,1), self.file_sink_decoder) # (Do not comment this line)
     self.connect(self.reader, self.file_sink_reader)
-    self.connect(self.matched_filter, self.file_sink_matched_filter)
+    self.connect(self.low_pass, self.file_sink_matched_filter)
     self.connect((self.to_complex),self.file_sink_sink)
 
 if __name__ == '__main__':
