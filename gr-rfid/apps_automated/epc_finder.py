@@ -1,17 +1,18 @@
 import scipy
 from scipy.signal import argrelextrema
+import matplotlib.pyplot as plt
 import numpy as np
 from os import getcwd
 
 # relative_path_to_file = '../data/Corilateme/source'
-relative_path_to_file = '../data/file_source_test'
+relative_path_to_file = '../misc/data/file_source_test'
 decim = 5  # decimation of matched filter
 samp_rate = (10 * 10 ** 6) / decim  # Samples per second
 half_symbol_length = int(round(12.5 * 10 ** -6 * samp_rate))
 print("Sample rate is ", samp_rate)
 print("Half symbol length is ", half_symbol_length)
 # Reduce computation by specifying a range to look at
-first_sample = 70000
+first_sample = 90000
 last_sample = 14000000
 verbose = False
 plotit = False
@@ -41,9 +42,8 @@ def find_start_transmission(numpyarray):
     norm_numpyarray = numpyarray / np.amax(numpyarray)
     correlated = np.correlate(norm_numpyarray - 0.5, start_transmit)
     start_location = np.argmax(correlated) + prev_samples
-    # plt.plot(correlated)
-    # plt.show()
-    # print("Transmission start loc is",start_location)
+    #plt.plot(correlated/350)
+    #print("Transmission start loc is",start_location)
     return start_location
 
 
@@ -103,6 +103,9 @@ def decode_rn16(numpyarray, remove, pie):
     Allows this function to do RN16 and ACK decoding.
 
     """
+    # print("Plotting the rn16 i am meant to decode")
+    # plt.plot(numpyarray)
+    # plt.show()
     percentage_between = 50  # Should be 50, though lower value may give better results
     # Perform a weighted mean between the maximum and minimum values.
     # Due to clipping, 50% occurs quite high up, causing some false transitions.
@@ -156,19 +159,6 @@ def decode_rn16(numpyarray, remove, pie):
         plt.axhline(y=avg, color='r', linestyle='-')
     return rn16_bits
 
-
-# File operations
-f = scipy.fromfile(open(getcwd() + '/' + relative_path_to_file), dtype=scipy.float32)
-print("Number of datapoints is:", f.size)
-f = f[first_sample:last_sample]
-abs_f = abs(f[0::2] + 1j * f[1::2])
-
-# Matched filter to reduce hf noise
-abs_f = scipy.signal.correlate(abs_f, np.ones(decim), mode='same') / decim
-
-import matplotlib.pyplot as plt
-
-
 def find_valid_transmission(relative_position):
     """
     Recursive function to find a valid start point. May eat memory.
@@ -182,14 +172,19 @@ def find_valid_transmission(relative_position):
         abs_f[first_tran_start + min_trans:first_tran_start + max_trans]) + first_tran_start + min_trans
     print("first_transm_loc", first_tran_start, first_tran_end)
 
-    min_trans_delay, max_trans_delay = 3000, 10000
+    # Plot circles to show where signals have been detected.
+    plt.plot([first_tran_start],1,'go')
+    plt.plot([first_tran_end],1,'ro')
+
+    min_trans_delay, max_trans_delay = 2000, 12000
     second_tran_start = find_start_transmission(
         abs_f[first_tran_end + min_trans_delay:first_tran_end + max_trans_delay]) + first_tran_end + min_trans_delay
     print("second start loc", second_tran_start)
-
+    plt.plot([second_tran_start],0.98,'ko')
     # Read data between, see if we are RN16 or EPC
     reflected_data_loc = find_rn16(abs_f[first_tran_end + 100:second_tran_start - 100]) + first_tran_end + 100
     print("Reflected data loc is ", reflected_data_loc)
+    plt.plot([reflected_data_loc],1,'bo')
     rn16_test = decode_rn16(abs_f[reflected_data_loc - 20:second_tran_start - 20], 7, 0)
     data_len = len(rn16_test)
 
@@ -211,10 +206,19 @@ def find_valid_transmission(relative_position):
             data_len, "LOOPING")
         return find_valid_transmission(relative_position + 5000)
 
+# File operations
+f = scipy.fromfile(open(getcwd() + '/' + relative_path_to_file), dtype=scipy.float32)
+print("Number of datapoints is:", f.size)
+f = f[first_sample:last_sample]
+abs_f = abs(f[0::2] + 1j * f[1::2])
+abs_f = abs_f / np.amax(abs_f)
+# Matched filter to reduce hf noise
+abs_f = scipy.signal.correlate(abs_f, np.ones(decim), mode='same') / decim
 
 plt.plot(abs_f)
-plt.show()
+
 find_valid_transmission(0)
+plt.show()
 # Find and plot transmission starts
 
 
