@@ -34,23 +34,24 @@ def find_rn16(numpyarray):
 
 def end_rn16(numpyarray):
     """Find the end of RN16 using cross-correlation"""
-    postamble =700
+    postamble =300
     # TODO downsample for speed, if reliable enough.
-    sampled_signal = np.concatenate((2 * half_symbol_length * [1],  postamble * [1]))
+    sampled_signal = np.concatenate((half_symbol_length * [10],  postamble * [-1]))
+
     # flipped = np.flipud(sampled_signal) #Usefull if convolving
     correlated = np.correlate(numpyarray - np.mean(numpyarray), sampled_signal)
     end_rn16_loc = np.argmax(correlated)
     # plt.plot(correlated)
     # plt.show()
     # print("RN16 start loc is",start_location)
-    return end_rn16_loc + 2*half_symbol_length +postamble
+    return end_rn16_loc + half_symbol_length
 
 
 def find_start_transmission(numpyarray):
     """Find the preamble of Transmission using cross-correlation"""
-    prev_samples = 700
-    start_transmit = np.concatenate((prev_samples * [1], half_symbol_length * [-1], half_symbol_length * [1],
-                                     half_symbol_length * [-1], 2 * half_symbol_length * [1]))
+    prev_samples = 500
+    start_transmit = np.concatenate((prev_samples * [1], half_symbol_length * [-100], half_symbol_length * [100],
+                                     half_symbol_length * [-100], 2 * half_symbol_length * [100]))
     # Normalise, so midpoint is known.
     norm_numpyarray = numpyarray / np.amax(numpyarray)
     correlated = np.correlate(norm_numpyarray - 0.5, start_transmit)
@@ -128,10 +129,10 @@ def decode_rn16(numpyarray, remove, pie):
     # Filter out the short duration pulses, less than 1/3 of the smallest possible pulse is definitely an error.
     # Could filter more strictly in the future, or do something clever like combining small (erroneous) pulses with
     # their neighbours so the total adds to a plausible symbol_length.
-    flt_xdiff = xdiff[xdiff > half_symbol_length / 3.0]
-    if verbose:
-        print("Len before and after filtering", len(xdiff), len(flt_xdiff))
-        print("flt_xdiff IS ", flt_xdiff)
+    flt_xdiff = xdiff[xdiff > (half_symbol_length / 3.0)]
+    # if verbose:
+    #     print("Len before and after filtering", len(xdiff), len(flt_xdiff))
+    #     print("flt_xdiff IS ", flt_xdiff)
     flt_xdiff = flt_xdiff[remove:]
     # Differential decoder
     # Using Sidarth's method of counting zero crossings. Works well with high snr, but has major issues if
@@ -158,11 +159,11 @@ def decode_rn16(numpyarray, remove, pie):
     # position of 1s
     # print(np.where(flt_xdiff>1.3*half_symbol_length)[0])
     # print(np.diff(np.where(flt_xdiff>1.3*half_symbol_length)[0])-1)
-    if verbose:
-        if pie:
-            print("ACK  is ", rn16_bits, len(rn16_bits))
-        else:
-            print("RN16 is ", rn16_bits, len(rn16_bits))
+    # if verbose:
+    #     if pie:
+    #         print("ACK  is ", rn16_bits, len(rn16_bits))
+    #     else:
+    #         print("RN16 is ", rn16_bits, len(rn16_bits))
     # Can have 17bits read, last one is false.
     if len(rn16_bits) == 17:
         rn16_bits = rn16_bits[:16]
@@ -207,22 +208,27 @@ def count_rn16s():
         start_rn16_loc = find_rn16(abs_f[first_tran_end + 100:first_tran_end + 1000]) + first_tran_end + 100
         if verbose:
             print("start rn16 loc is ", start_rn16_loc)
-        if plotit:
-            plt.plot([start_rn16_loc],1,'bo')
 
-        #initially, assume looking at an RN16. If not, check if it is an epc.
+
+        #Assume looking at an RN16. If not, the data_len check will fail.
         end_rn16_loc = end_rn16(abs_f[start_rn16_loc - 50:start_rn16_loc + 1500])+start_rn16_loc - 50
-        plt.plot([end_rn16_loc],1,'co')
+
 
         rn16_test = decode_rn16(abs_f[start_rn16_loc - 50:end_rn16_loc + 50], 7, 0)
         data_len = len(rn16_test)
+        # if plotit:
+        #     plt.plot([start_rn16_loc],1,'bo')
+        #     plt.plot([end_rn16_loc],1,'co')
 
-        if 18 > data_len > 14:
+        if 17 > data_len > 14:
             # probably a RN16
             if verbose:
                 print("Found a RN16", rn16_test, len(rn16_test))
             # Start position is the first transmsiion
             count_rn16+=1
+            if plotit:
+                plt.plot([start_rn16_loc],1,'bo')
+                plt.plot([end_rn16_loc],1,'co')
             relative_position = end_rn16_loc + 50
 
         else:
@@ -250,57 +256,3 @@ print(count_rn16)
 if plotit:
     plt.plot(abs_f)
     plt.show()
-# Find and plot transmission starts
-
-
-'''
-#transmission_starts = find_initial_transmissions(abs_f)
-#y = np.ones(len(transmission_starts))*1.06*np.amax(abs_f)
-#plt.scatter(transmission_starts,y,c='r',marker='x')
-
-start_RN16=[]
-start_EPC = []
-offset = 1900 # How far after the start of a transmission the RN16 can be expected
-for x in range(len(transmission_starts)-1):
-    relative_start_loc = find_RN16(abs_f[transmission_starts[x]+offset:transmission_starts[x+1]])
-    # If the time between transmission starts is longer than 7000, it is an EPC not RN16
-    if transmission_starts[x]+7000>transmission_starts[x+1]:
-        # This now doesn't fail, but will pick incorrect RN16 when no RN16 is present
-        start_RN16.append(transmission_starts[x]+offset + relative_start_loc)
-    else:
-        start_EPC.append(transmission_starts[x]+offset + relative_start_loc)
-
-    #Decode the ACK signals
-    ACK = decode_RN16(abs_f[transmission_starts[x]-100:(transmission_starts[x]+offset)],9,1)
-    #print("ACK IS ",ACK)
-    plt.text(transmission_starts[x],1.01*np.amax(abs_f),int(''.join(map(str,ACK)),2))
-#print(start_RN16)
-
-print("Number of transmissions",len(transmission_starts))
-print("Sum of RN16s + EPCs",len(start_RN16))
-
-y_start_RN16 = np.ones(len(start_RN16))*1.06*np.amax(abs_f)
-plt.scatter(start_RN16,y_start_RN16,c='b',marker='x')
-#y_failed_RN16 = np.ones(len(failed_RN16))*1.02*np.amax(abs_f)
-#plt.scatter(failed_RN16,y_failed_RN16,c='r',marker='o')
-
-# Decode RN16s, add text to the plot
-for start in start_RN16:
-    #print("Start point is ",start)
-    #print("data to decode is ", abs_f[start:(start+200)])
-    RN16 = decode_RN16(abs_f[start-10:(start+1500)],7,0)
-    print("RN16 value is ",RN16,len(RN16))
-    plt.text(start+200,1.09*np.amax(abs_f),int(''.join(map(str,RN16)),2))
-
-plt.show()
-
-if plotit:
-    import matplotlib.pyplot as plt
-    plt.plot(abs_f)
-    decode_RN16(abs_f[43000:44500],6,0)
-    decode_RN16(abs_f[45000:46600],8,1)
-    plt.show()
-else:
-    print("RN16 is ",decode_RN16(abs_f[43000:44500],7,0))
-    print("ACK  is ",decode_RN16(abs_f[45000:46600],9,1))
-'''
