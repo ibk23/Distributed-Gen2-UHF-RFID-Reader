@@ -15,7 +15,7 @@ print("Half symbol length is ", half_symbol_length)
 first_sample = 90000
 last_sample = 14000000
 verbose = False
-plotit = False
+plotit = True
 
 
 def find_rn16(numpyarray):
@@ -129,8 +129,8 @@ def decode_rn16(numpyarray, remove, pie):
     # Could filter more strictly in the future, or do something clever like combining small (erroneous) pulses with
     # their neighbours so the total adds to a plausible symbol_length.
     flt_xdiff = xdiff[xdiff > half_symbol_length / 3.0]
-    print("Len before and after filtering", len(xdiff), len(flt_xdiff))
     if verbose:
+        print("Len before and after filtering", len(xdiff), len(flt_xdiff))
         print("flt_xdiff IS ", flt_xdiff)
     flt_xdiff = flt_xdiff[remove:]
     # Differential decoder
@@ -167,9 +167,10 @@ def decode_rn16(numpyarray, remove, pie):
     if len(rn16_bits) == 17:
         rn16_bits = rn16_bits[:16]
 
-    if plotit:
-        print("Max and min are ", np.amin(numpyarray), np.amax(numpyarray))
-        plt.axhline(y=avg, color='r', linestyle='-')
+    # if plotit:
+    #     if verbose:
+    #         print("Max and min are ", np.amin(numpyarray), np.amax(numpyarray))
+    #     plt.axhline(y=avg, color='r', linestyle='-')
     return rn16_bits
 
 
@@ -193,17 +194,21 @@ def count_rn16s():
                 abs_f[first_tran_start + min_trans:first_tran_start + max_trans]) + first_tran_start + min_trans
         except ValueError:
             return count_rn16
-        print("first_transm_loc", first_tran_start, first_tran_end)
+        if verbose:
+            print("first_transm_loc", first_tran_start, first_tran_end)
 
         # Plot circles to show where signals have been detected.
-        plt.plot([first_tran_start],1,'go')
-        plt.plot([first_tran_end],1,'ro')
+        if plotit:
+            plt.plot([first_tran_start],1,'go')
+            plt.plot([first_tran_end],1,'ro')
 
 
         # Read data between, see if we are RN16 or EPC
         start_rn16_loc = find_rn16(abs_f[first_tran_end + 100:first_tran_end + 1000]) + first_tran_end + 100
-        print("start rn16 loc is ", start_rn16_loc)
-        plt.plot([start_rn16_loc],1,'bo')
+        if verbose:
+            print("start rn16 loc is ", start_rn16_loc)
+        if plotit:
+            plt.plot([start_rn16_loc],1,'bo')
 
         #initially, assume looking at an RN16. If not, check if it is an epc.
         end_rn16_loc = end_rn16(abs_f[start_rn16_loc - 50:start_rn16_loc + 1500])+start_rn16_loc - 50
@@ -214,32 +219,37 @@ def count_rn16s():
 
         if 18 > data_len > 14:
             # probably a RN16
-            print("Found a RN16", rn16_test, len(rn16_test))
+            if verbose:
+                print("Found a RN16", rn16_test, len(rn16_test))
             # Start position is the first transmsiion
             count_rn16+=1
             relative_position = end_rn16_loc + 50
 
         else:
             # failed read
-            print(
+            if verbose:
+                print(
                 "Failed to read an EPC or RN16 in range ", start_rn16_loc - 50 + relative_position ,end_rn16_loc + 50 + relative_position, "datalen was",
                 data_len, "LOOPING")
             relative_position = start_rn16_loc +1000
 
 # File operations
 f = scipy.fromfile(open(getcwd() + '/' + relative_path_to_file), dtype=scipy.float32)
-print("Number of datapoints is:", f.size)
+if verbose:
+    print("Number of datapoints is:", f.size)
 #f = f[first_sample:last_sample]
 abs_f = abs(f[0::2] + 1j * f[1::2])
 abs_f = abs_f / np.amax(abs_f)
 # Matched filter to reduce hf noise
 abs_f = scipy.signal.correlate(abs_f, np.ones(decim), mode='same') / decim
 
-plt.plot(abs_f)
+
 count_rn16 = 0
 count_rn16s()
 print(count_rn16)
-plt.show()
+if plotit:
+    plt.plot(abs_f)
+    plt.show()
 # Find and plot transmission starts
 
 
