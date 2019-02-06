@@ -32,6 +32,19 @@ def find_rn16(numpyarray):
     # print("RN16 start loc is",start_location)
     return start_location
 
+def end_rn16(numpyarray):
+    """Find the end of RN16 using cross-correlation"""
+    postamble =700
+    # TODO downsample for speed, if reliable enough.
+    sampled_signal = np.concatenate((2 * half_symbol_length * [1],  postamble * [1]))
+    # flipped = np.flipud(sampled_signal) #Usefull if convolving
+    correlated = np.correlate(numpyarray - np.mean(numpyarray), sampled_signal)
+    end_rn16_loc = np.argmax(correlated)
+    # plt.plot(correlated)
+    # plt.show()
+    # print("RN16 start loc is",start_location)
+    return end_rn16_loc + 2*half_symbol_length +postamble
+
 
 def find_start_transmission(numpyarray):
     """Find the preamble of Transmission using cross-correlation"""
@@ -159,65 +172,73 @@ def decode_rn16(numpyarray, remove, pie):
         plt.axhline(y=avg, color='r', linestyle='-')
     return rn16_bits
 
-def find_valid_transmission(relative_position):
+
+
+def count_rn16s():
     """
-    Recursive function to find a valid start point. May eat memory.
+    Count
     """
+    global count_rn16
+    relative_position = 0
+    while(1):
+        try:
+            first_tran_start = find_start_transmission(
+                abs_f[0 + relative_position:10000 + relative_position]) + relative_position
+        except ValueError:
+            return count_rn16
+        # Searches for the end between 1500 and 2500 later than the start.
+        min_trans, max_trans = 1200, 2500
+        try:
+            first_tran_end = find_end_transmission(
+                abs_f[first_tran_start + min_trans:first_tran_start + max_trans]) + first_tran_start + min_trans
+        except ValueError:
+            return count_rn16
+        print("first_transm_loc", first_tran_start, first_tran_end)
 
-    first_tran_start = find_start_transmission(
-        abs_f[0 + relative_position:10000 + relative_position]) + relative_position
-    # Searches for the end between 1500 and 2500 later than the start.
-    min_trans, max_trans = 1200, 2500
-    first_tran_end = find_end_transmission(
-        abs_f[first_tran_start + min_trans:first_tran_start + max_trans]) + first_tran_start + min_trans
-    print("first_transm_loc", first_tran_start, first_tran_end)
+        # Plot circles to show where signals have been detected.
+        plt.plot([first_tran_start],1,'go')
+        plt.plot([first_tran_end],1,'ro')
 
-    # Plot circles to show where signals have been detected.
-    plt.plot([first_tran_start],1,'go')
-    plt.plot([first_tran_end],1,'ro')
 
-    min_trans_delay, max_trans_delay = 2000, 12000
-    second_tran_start = find_start_transmission(
-        abs_f[first_tran_end + min_trans_delay:first_tran_end + max_trans_delay]) + first_tran_end + min_trans_delay
-    print("second start loc", second_tran_start)
-    plt.plot([second_tran_start],0.98,'ko')
-    # Read data between, see if we are RN16 or EPC
-    reflected_data_loc = find_rn16(abs_f[first_tran_end + 100:second_tran_start - 100]) + first_tran_end + 100
-    print("Reflected data loc is ", reflected_data_loc)
-    plt.plot([reflected_data_loc],1,'bo')
-    rn16_test = decode_rn16(abs_f[reflected_data_loc - 20:second_tran_start - 20], 7, 0)
-    data_len = len(rn16_test)
+        # Read data between, see if we are RN16 or EPC
+        start_rn16_loc = find_rn16(abs_f[first_tran_end + 100:first_tran_end + 1000]) + first_tran_end + 100
+        print("start rn16 loc is ", start_rn16_loc)
+        plt.plot([start_rn16_loc],1,'bo')
 
-    if 18 > data_len > 14:
-        # probably a RN16
-        print("Found a RN16", rn16_test, len(rn16_test))
-        # Start position is the first transmsiion
-        return first_tran_start
+        #initially, assume looking at an RN16. If not, check if it is an epc.
+        end_rn16_loc = end_rn16(abs_f[start_rn16_loc - 50:start_rn16_loc + 1500])+start_rn16_loc - 50
+        plt.plot([end_rn16_loc],1,'co')
 
-    elif data_len >= 100:
-        # probably an epc
-        print("Found a EPC", rn16_test, len(rn16_test))
-        return second_tran_start
+        rn16_test = decode_rn16(abs_f[start_rn16_loc - 50:end_rn16_loc + 50], 7, 0)
+        data_len = len(rn16_test)
 
-    else:
-        # failed read
-        print(
-            "Failed to read an EPC or RN16 in range ", 0 + relative_position, 10000 + relative_position, "datalen was",
-            data_len, "LOOPING")
-        return find_valid_transmission(relative_position + 5000)
+        if 18 > data_len > 14:
+            # probably a RN16
+            print("Found a RN16", rn16_test, len(rn16_test))
+            # Start position is the first transmsiion
+            count_rn16+=1
+            relative_position = end_rn16_loc + 50
+
+        else:
+            # failed read
+            print(
+                "Failed to read an EPC or RN16 in range ", start_rn16_loc - 50 + relative_position ,end_rn16_loc + 50 + relative_position, "datalen was",
+                data_len, "LOOPING")
+            relative_position = start_rn16_loc +1000
 
 # File operations
 f = scipy.fromfile(open(getcwd() + '/' + relative_path_to_file), dtype=scipy.float32)
 print("Number of datapoints is:", f.size)
-f = f[first_sample:last_sample]
+#f = f[first_sample:last_sample]
 abs_f = abs(f[0::2] + 1j * f[1::2])
 abs_f = abs_f / np.amax(abs_f)
 # Matched filter to reduce hf noise
 abs_f = scipy.signal.correlate(abs_f, np.ones(decim), mode='same') / decim
 
 plt.plot(abs_f)
-
-find_valid_transmission(0)
+count_rn16 = 0
+count_rn16s()
+print(count_rn16)
 plt.show()
 # Find and plot transmission starts
 
