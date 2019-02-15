@@ -18,33 +18,12 @@ power_1='3.0'
 power_2='3'
 
 
-def frequency_sweep(start, fin, no_steps):
-    print("Running test with params",freq_1,power_1,power_2)
-    for freq_2 in np.linspace(start, fin, no_steps):
-        freq_2=str(freq_2)
-        print("freq_2 is ",freq_2)
-        run_test(freq_1,freq_2,power_1,power_2)
-
-def power_sweep(start, fin, no_steps):
-    print("Running test with params",freq_1,freq_2,power_1)
-    for power_2 in np.linspace(start, fin, no_steps):
-        power_2=str(power_2)
-        print("power_2 is ",power_2)
-        run_test(freq_1,freq_2,power_1,power_2)
-
-def twod_sweep(start_f,end_f,steps_f,start_p,end_p,steps_p):
-    global freq_2
-    for freq_2 in np.linspace(start_f, end_f, steps_f):
-        freq_2=str(freq_2)
-        print("freq_2 is ",freq_2)
-        power_sweep(start_p, end_p, steps_p)
-
 def power_sweep_tx1_only(start, fin, no_steps):
     #print("Running test with params",freq_1,freq_2,power_1)
     for power_1 in np.linspace(start, fin, no_steps):
         power_1=str(power_1)
         #print("power_2 is ",power_1)
-        run_test(freq_1,freq_2,power_1,power_2)
+        run_test_tx1_only(freq_1,freq_2,power_1,power_2)
 
 def twod_sweep_tx1_only(start_f,end_f,steps_f,start_p,end_p,steps_p):
     global freq_1
@@ -55,7 +34,7 @@ def twod_sweep_tx1_only(start_f,end_f,steps_f,start_p,end_p,steps_p):
 
 
 
-def run_test(freq_1,freq_2,power_1,power_2):
+def run_test_tx1_only(freq_1,freq_2,power_1,power_2):
     attempts=[]
     successes=[]
     for run in range(3):
@@ -68,15 +47,18 @@ def run_test(freq_1,freq_2,power_1,power_2):
                 print("Looks like freq or power is wrong, quitting.",freq_1,freq_2,power_1,power_2)
                 break
             proc = subprocess.Popen(['sudo', 'GR_SCHEDULER=STS', 'nice', '-n', '-20', 
-                                     'python', 'reader11_automatable.py', 
+                                     'python', 'single_tx_reader.py', 
                                      freq_1, freq_2,power_1, power_2], stdout=tempf)
             proc.wait()
             tempf.seek(0)
+            #print(tempf.read())
+            #tempf.seek(0)
             if re.search("Number of queries\/queryreps sent : (.*)", tempf.read()):
                 tempf.seek(0)
                 attempts.append(re.findall("Number of queries\/queryreps sent : (.*)", tempf.read())[0])
                 tempf.seek(0)
                 successes.append(re.findall("Correctly decoded EPC : (.*)", tempf.read())[0])
+                
     print([suc for suc in successes],[at for at in attempts])
     with open("dataoutput.csv","ab") as csvfile:
         if successes and attempts:
@@ -88,7 +70,7 @@ def run_test(freq_1,freq_2,power_1,power_2):
 #run_test('910','910','7','7')
 #twod_sweep(910,915,10,3,6,10)
 #twod_sweep(910,915,5,6,10,5)
-twod_sweep_tx1_only(910,915,5,6,10,5)
+twod_sweep_tx1_only(910,915,6,6,13,8)
 #frequency_sweep(910,916,2)
 #frequency_sweep(915,918,18)
 #power_sweep(3,7,15)
