@@ -139,7 +139,7 @@ class reader_top_block(gr.top_block):
     self.connect((self.to_complex),self.file_sink_sink)
 
 if __name__ == '__main__':
-  if not (900<float(sys.argv[1])<920 and 900<float(sys.argv[2])<920 and float(sys.argv[3])<15 and float(sys.argv[4])<15):
+  if not (900<float(sys.argv[1])<931 and 900<float(sys.argv[2])<931 and float(sys.argv[3])<10.1 and float(sys.argv[4])<10.1):
     print("Looks like freq or power is wrong, quitting.",sys.argv)
     sys.exit()
 

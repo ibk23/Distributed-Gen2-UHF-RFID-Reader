@@ -11,9 +11,9 @@ with open("dataoutput.csv","w") as csvfile:
 
 
 freq_1='910'
-freq_2='915'
-power_1='7.0'
-power_2='9.11'
+freq_2='910'
+power_1='3.0'
+power_2='3'
 
 
 def frequency_sweep(start, fin, no_steps):
@@ -44,8 +44,8 @@ def run_test(freq_1,freq_2,power_1,power_2):
     for run in range(3):
         print("Run",run)
         with tempfile.TemporaryFile() as tempf:
-            if not (900<float(freq_1)<920 and 
-                    900<float(freq_2)<920 and 
+            if not (900<float(freq_1)<931 and 
+                    900<float(freq_2)<931 and 
                     float(power_1)<15 and 
                     float(power_2)<15):
                 print("Looks like freq or power is wrong, quitting.",freq_1,freq_2,power_1,power_2)
@@ -55,16 +55,21 @@ def run_test(freq_1,freq_2,power_1,power_2):
                                      freq_1, freq_2,power_1, power_2], stdout=tempf)
             proc.wait()
             tempf.seek(0)
-            attempts.append(re.findall("Number of queries\/queryreps sent : (.*)", tempf.read())[0])
-            tempf.seek(0)
-            successes.append(re.findall("Correctly decoded EPC : (.*)", tempf.read())[0])
-    with open("dataoutput.csv","ab") as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow([freq_1, freq_2, power_1, power_2]+[suc for suc in successes]+[at for at in attempts])
-
-twod_sweep(910,915,10,7,12,30)
+            if re.search("Number of queries\/queryreps sent : (.*)", tempf.read()):
+                tempf.seek(0)
+                attempts.append(re.findall("Number of queries\/queryreps sent : (.*)", tempf.read())[0])
+                tempf.seek(0)
+                successes.append(re.findall("Correctly decoded EPC : (.*)", tempf.read())[0])
+                with open("dataoutput.csv","ab") as csvfile:
+                    writer = csv.writer(csvfile)
+                    writer.writerow([freq_1, freq_2, power_1, power_2]+[suc for suc in successes]+[at for at in attempts])
+#twod_sweep(911,915,30,5.7,5.9,3)
+#run_test('910','910','7','7')
+#twod_sweep(910,915,10,3,6,10)
+twod_sweep(910.75,915,5,8,11,5)
 #frequency_sweep(910,916,2)
 #frequency_sweep(915,918,18)
-#power_sweep(4.8,6.6,20)
-#power_sweep(8.9,9.2,15)
+#power_sweep(3,7,15)
+#power_sweep(8.6,9.4,15)
+#power_sweep(8.5,10.5,30)
 
