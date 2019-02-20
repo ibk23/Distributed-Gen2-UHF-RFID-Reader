@@ -52,10 +52,10 @@ class reader_top_block(gr.top_block):
     self.dac_rate = 1e6                 # DAC rate 
     self.adc_rate = 100e6/50            # ADC rate (2MS/s complex samples)
     self.decim     = 5                    # Decimation (downsampling factor)
-    self.ampl     = 0.1                  # Output signal amplitude (signal power vary for different RFX900 cards)
-    self.freq     = 910e6                # Modulation frequency (can be set between 902-920)
+    self.ampl     = 0.5                  # Output signal amplitude (signal power vary for different RFX900 cards)
+    self.freq     = 913e6                # Modulation frequency (can be set between 902-920)
     self.rx_gain   = 20                   # RX Gain (gain at receiver)
-    self.tx_gain   = 13                    # RFX900 no Tx gain option
+    self.tx_gain   = 10                    # RFX900 no Tx gain option
 
     self.usrp_address_source = "addr=192.168.10.2,recv_frame_size=256"
     self.usrp_address_sink   = "addr=192.168.10.2,recv_frame_size=256"
@@ -112,6 +112,7 @@ class reader_top_block(gr.top_block):
       self.connect(self.to_complex, self.file_sink)
     
     #File sinks for logging 
+    self.connect(self.source, self.file_sink_source)
     #self.connect(self.gate, self.file_sink_gate)
     self.connect((self.tag_decoder,1), self.file_sink_decoder) # (Do not comment this line)
     #self.connect(self.file_sink_reader, self.file_sink_reader)

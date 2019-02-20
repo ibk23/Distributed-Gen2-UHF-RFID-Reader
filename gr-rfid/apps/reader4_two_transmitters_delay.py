@@ -86,7 +86,7 @@ class reader_top_block(gr.top_block):
     self.reader          = rfid.reader(int(self.adc_rate/self.decim),int(self.dac_rate))
     self.amp             = blocks.multiply_const_ff(self.ampl)
     self.to_complex      = blocks.float_to_complex()
-    self.delay		 = blocks.delay(gr.sizeof_gr_complex*1, 10)
+    self.delay		 = blocks.delay(gr.sizeof_gr_complex*1, 11)
 
     if (DEBUG == False) : # Real Time Execution
 

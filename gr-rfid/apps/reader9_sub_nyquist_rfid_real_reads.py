@@ -64,10 +64,10 @@ class reader_top_block(gr.top_block):
     self.decim     = 2                    # Decimation (downsampling factor)
     self.ampl     = 0.5                  # Output signal amplitude (signal power vary for different RFX900 cards)
     self.tx_freq_1 = 910e6                # Modulation frequency (can be set between 902-920)
-    self.tx_freq_2 = 910e6                # Modulation frequency (can be set between 902-920)
+    self.tx_freq_2 = 912e6                # Modulation frequency (can be set between 902-920)
     self.rx_gain   = 20                  # RX Gain (gain at receiver)
-    self.tx_gain_1   = int(sys.argv[1])                    # RFX900 no Tx gain option
-    self.tx_gain_2   = int(sys.argv[2])                    # RFX900 no Tx gain option
+    self.tx_gain_1   = float(sys.argv[1])                    # RFX900 no Tx gain option
+    self.tx_gain_2   = float(sys.argv[2])                    # RFX900 no Tx gain option
 
     self.usrp_address_source = "addr0=192.168.10.2, addr1=192.168.20.2,recv_frame_size=256"
     self.usrp_address_sink   = "addr0=192.168.10.2, addr1=192.168.20.2,recv_frame_size=256"

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <?grc format='1' created='3.7.9'?>
 <flow_graph>
-  <timestamp>Tue Sep 19 11:14:41 2017</timestamp>
+  <timestamp>Wed Oct 31 11:49:29 2018</timestamp>
   <block>
     <key>options</key>
     <param>
@@ -14,7 +14,7 @@
     </param>
     <param>
       <key>category</key>
-      <value>[GRC Hier Blocks]</value>
+      <value>Custom</value>
     </param>
     <param>
       <key>comment</key>
@@ -93,7 +93,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(252, 8)</value>
+      <value>(8, 93)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -101,11 +101,11 @@
     </param>
     <param>
       <key>id</key>
-      <value>adc_rate</value>
+      <value>adc_samp_rate</value>
     </param>
     <param>
       <key>value</key>
-      <value>5e6</value>
+      <value>5000000</value>
     </param>
   </block>
   <block>
@@ -120,7 +120,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(168, 64)</value>
+      <value>(8, 160)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -128,180 +128,18 @@
     </param>
     <param>
       <key>id</key>
-      <value>ampl</value>
+      <value>samp_rate</value>
     </param>
     <param>
       <key>value</key>
-      <value>0.1</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(172, 8)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>dac_rate</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>5e6</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(328, 8)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>decim</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>50</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(252, 64)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>freq</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>910e6</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(412, 64)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>num_taps</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>[1] *int(adc_rate/(40e3*decim))</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(336, 60)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>rx_gain</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>20</value>
-    </param>
-  </block>
-  <block>
-    <key>variable</key>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(408, 8)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>tx_gain</value>
-    </param>
-    <param>
-      <key>value</key>
-      <value>5</value>
+      <value>5000000</value>
     </param>
   </block>
   <block>
     <key>analog_sig_source_x</key>
     <param>
       <key>amp</key>
-      <value>5</value>
+      <value>1</value>
     </param>
     <param>
       <key>alias</key>
@@ -325,7 +163,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(832, 264)</value>
+      <value>(96, 464)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -333,7 +171,70 @@
     </param>
     <param>
       <key>id</key>
-      <value>analog_sig_source_x_0_1</value>
+      <value>analog_sig_source_x_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>offset</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>samp_rate</key>
+      <value>samp_rate</value>
+    </param>
+    <param>
+      <key>waveform</key>
+      <value>analog.GR_COS_WAVE</value>
+    </param>
+  </block>
+  <block>
+    <key>analog_sig_source_x</key>
+    <param>
+      <key>amp</key>
+      <value>0.5</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>freq</key>
+      <value>40000</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(96, 360)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>analog_sig_source_x_0_0</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -349,11 +250,11 @@
     </param>
     <param>
       <key>type</key>
-      <value>complex</value>
+      <value>float</value>
     </param>
     <param>
       <key>samp_rate</key>
-      <value>dac_rate</value>
+      <value>samp_rate</value>
     </param>
     <param>
       <key>waveform</key>
@@ -388,7 +289,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(8, 360)</value>
+      <value>(120, 776)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -396,7 +297,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>analog_sig_source_x_0_1_0</value>
+      <value>analog_sig_source_x_0_1</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -416,7 +317,7 @@
     </param>
     <param>
       <key>samp_rate</key>
-      <value>adc_rate</value>
+      <value>samp_rate</value>
     </param>
     <param>
       <key>waveform</key>
@@ -447,11 +348,11 @@
     </param>
     <param>
       <key>file</key>
-      <value>/home/cna22/git/Distributed-Gen2-UHF-RFID-Reader/gr-rfid/misc/data/reader</value>
+      <value>/home/cna22/git/Distributed-Gen2-UHF-RFID-Reader/gr-rfid/misc/data/2MHz_ssb_sink</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(600, 126)</value>
+      <value>(688, 566)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -463,7 +364,7 @@
     </param>
     <param>
       <key>type</key>
-      <value>float</value>
+      <value>complex</value>
     </param>
     <param>
       <key>unbuffered</key>
@@ -498,11 +399,11 @@
     </param>
     <param>
       <key>file</key>
-      <value>/home/cna22/git/Distributed-Gen2-UHF-RFID-Reader/gr-rfid/misc/data/filter</value>
+      <value>/home/cna22/git/Distributed-Gen2-UHF-RFID-Reader/gr-rfid/misc/data/2MHz_ssb_source</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(312, 142)</value>
+      <value>(576, 894)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -549,11 +450,11 @@
     </param>
     <param>
       <key>file</key>
-      <value>/home/cna22/git/Distributed-Gen2-UHF-RFID-Reader/gr-rfid/misc/data/source</value>
+      <value>/home/cna22/git/Distributed-Gen2-UHF-RFID-Reader/gr-rfid/misc/data/filter</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(48, 142)</value>
+      <value>(784, 798)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -600,11 +501,11 @@
     </param>
     <param>
       <key>file</key>
-      <value>/home/cna22/git/Distributed-Gen2-UHF-RFID-Reader/gr-rfid/misc/data/sink</value>
+      <value>/home/cna22/git/Distributed-Gen2-UHF-RFID-Reader/gr-rfid/misc/data/lowpass</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(880, 566)</value>
+      <value>(808, 718)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -612,160 +513,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>blocks_file_sink_0_1</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>complex</value>
-    </param>
-    <param>
-      <key>unbuffered</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_file_sink</key>
-    <param>
-      <key>append</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>file</key>
-      <value>/home/cna22/git/Distributed-Gen2-UHF-RFID-Reader/gr-rfid/misc/data/reader_interp</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(1008, 46)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_file_sink_0_2</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>float</value>
-    </param>
-    <param>
-      <key>unbuffered</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_file_sink</key>
-    <param>
-      <key>append</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>file</key>
-      <value>/home/cna22/git/Distributed-Gen2-UHF-RFID-Reader/gr-rfid/misc/data/decoder_carl_test</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(536, 502)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_file_sink_2</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>complex</value>
-    </param>
-    <param>
-      <key>unbuffered</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>vlen</key>
-      <value>1</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_file_sink</key>
-    <param>
-      <key>append</key>
-      <value>False</value>
-    </param>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>file</key>
-      <value>/home/cna22/git/Distributed-Gen2-UHF-RFID-Reader/gr-rfid/misc/data/gate</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(552, 406)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_file_sink_2_0</value>
+      <value>blocks_file_sink_0_0_0_0</value>
     </param>
     <param>
       <key>type</key>
@@ -800,7 +548,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(856, 113)</value>
+      <value>(280, 393)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -808,7 +556,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>blocks_float_to_complex_0_0</value>
+      <value>blocks_float_to_complex_0</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -821,6 +569,61 @@
     <param>
       <key>vlen</key>
       <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>blocks_moving_average_xx</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(584, 798)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_moving_average_xx_0</value>
+    </param>
+    <param>
+      <key>length</key>
+      <value>6</value>
+    </param>
+    <param>
+      <key>max_iter</key>
+      <value>50</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>scale</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
     </param>
   </block>
   <block>
@@ -843,7 +646,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(888, 185)</value>
+      <value>(480, 465)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -894,7 +697,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(176, 361)</value>
+      <value>(392, 673)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -945,11 +748,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(680, 329)</value>
+      <value>(784, 680)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -973,116 +776,6 @@
     </param>
   </block>
   <block>
-    <key>fir_filter_xxx</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>decim</key>
-      <value>decim</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(312, 429)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>fir_filter_xxx_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>samp_delay</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>taps</key>
-      <value>num_taps</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>ccc</value>
-    </param>
-  </block>
-  <block>
-    <key>interp_fir_filter_xxx</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>2</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(776, 21)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>interp_fir_filter_xxx_0</value>
-    </param>
-    <param>
-      <key>interp</key>
-      <value>int(dac_rate*decim/adc_rate)</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>samp_delay</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>taps</key>
-      <value>num_taps</value>
-    </param>
-    <param>
-      <key>type</key>
-      <value>fff</value>
-    </param>
-  </block>
-  <block>
     <key>low_pass_filter</key>
     <param>
       <key>beta</key>
@@ -1102,15 +795,15 @@
     </param>
     <param>
       <key>cutoff_freq</key>
-      <value>2000000</value>
+      <value>50000</value>
     </param>
     <param>
       <key>decim</key>
-      <value>decim</value>
+      <value>5</value>
     </param>
     <param>
       <key>_enabled</key>
-      <value>2</value>
+      <value>1</value>
     </param>
     <param>
       <key>type</key>
@@ -1118,7 +811,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(256, 242)</value>
+      <value>(576, 666)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1146,148 +839,15 @@
     </param>
     <param>
       <key>samp_rate</key>
-      <value>adc_rate</value>
+      <value>adc_samp_rate</value>
     </param>
     <param>
       <key>width</key>
-      <value>100000</value>
+      <value>10000</value>
     </param>
     <param>
       <key>win</key>
       <value>firdes.WIN_HAMMING</value>
-    </param>
-  </block>
-  <block>
-    <key>rfid_gate</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(496, 292)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>rfid_gate_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>sample_rate</key>
-      <value>int(adc_rate / decim)</value>
-    </param>
-  </block>
-  <block>
-    <key>rfid_reader</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>dac_rate</key>
-      <value>int(dac_rate)</value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(656, 213)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>rfid_reader_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>sample_rate</key>
-      <value>int(adc_rate/decim)</value>
-    </param>
-  </block>
-  <block>
-    <key>rfid_tag_decoder</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(488, 225)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>rfid_tag_decoder_0</value>
-    </param>
-    <param>
-      <key>maxoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>minoutbuf</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>sample_rate</key>
-      <value>int(adc_rate/decim)</value>
     </param>
   </block>
   <block>
@@ -1314,7 +874,7 @@
     </param>
     <param>
       <key>gain0</key>
-      <value>tx_gain</value>
+      <value>15</value>
     </param>
     <param>
       <key>ant10</key>
@@ -1962,7 +1522,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(816, 378)</value>
+      <value>(656, 418)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -2082,7 +1642,7 @@
     </param>
     <param>
       <key>samp_rate</key>
-      <value>dac_rate</value>
+      <value>samp_rate</value>
     </param>
     <param>
       <key>hide_cmd_port</key>
@@ -2129,7 +1689,7 @@
     </param>
     <param>
       <key>dc_offs_enb0</key>
-      <value>""</value>
+      <value>False</value>
     </param>
     <param>
       <key>iq_imbal_enb0</key>
@@ -3037,7 +2597,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(0, 249)</value>
+      <value>(88, 633)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -3165,7 +2725,7 @@
     </param>
     <param>
       <key>samp_rate</key>
-      <value>adc_rate</value>
+      <value>adc_samp_rate</value>
     </param>
     <param>
       <key>hide_cmd_port</key>
@@ -3189,26 +2749,38 @@
     </param>
   </block>
   <connection>
-    <source_block_id>analog_sig_source_x_0_1</source_block_id>
+    <source_block_id>analog_sig_source_x_0</source_block_id>
     <sink_block_id>blocks_multiply_xx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>1</sink_key>
   </connection>
   <connection>
-    <source_block_id>analog_sig_source_x_0_1_0</source_block_id>
+    <source_block_id>analog_sig_source_x_0_0</source_block_id>
+    <sink_block_id>blocks_float_to_complex_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>analog_sig_source_x_0_1</source_block_id>
     <sink_block_id>blocks_multiply_xx_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>1</sink_key>
   </connection>
   <connection>
-    <source_block_id>blocks_float_to_complex_0_0</source_block_id>
+    <source_block_id>blocks_float_to_complex_0</source_block_id>
     <sink_block_id>blocks_multiply_xx_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>blocks_moving_average_xx_0</source_block_id>
+    <sink_block_id>blocks_file_sink_0_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
     <source_block_id>blocks_multiply_xx_0</source_block_id>
-    <sink_block_id>blocks_file_sink_0_1</sink_block_id>
+    <sink_block_id>blocks_file_sink_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -3220,85 +2792,31 @@
   </connection>
   <connection>
     <source_block_id>blocks_multiply_xx_0_0</source_block_id>
-    <sink_block_id>low_pass_filter_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>fir_filter_xxx_0</source_block_id>
-    <sink_block_id>blocks_file_sink_2</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>fir_filter_xxx_0</source_block_id>
-    <sink_block_id>rfid_gate_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>interp_fir_filter_xxx_0</source_block_id>
-    <sink_block_id>blocks_file_sink_0_2</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>interp_fir_filter_xxx_0</source_block_id>
-    <sink_block_id>blocks_float_to_complex_0_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>low_pass_filter_0</source_block_id>
     <sink_block_id>blocks_file_sink_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>blocks_multiply_xx_0_0</source_block_id>
+    <sink_block_id>blocks_moving_average_xx_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>blocks_multiply_xx_0_0</source_block_id>
+    <sink_block_id>low_pass_filter_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
     <source_block_id>low_pass_filter_0</source_block_id>
-    <sink_block_id>fir_filter_xxx_0</sink_block_id>
+    <sink_block_id>blocks_file_sink_0_0_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
-    <source_block_id>rfid_gate_0</source_block_id>
-    <sink_block_id>blocks_file_sink_2_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>rfid_gate_0</source_block_id>
-    <sink_block_id>rfid_tag_decoder_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>rfid_reader_0</source_block_id>
-    <sink_block_id>blocks_file_sink_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>rfid_reader_0</source_block_id>
-    <sink_block_id>interp_fir_filter_xxx_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>rfid_tag_decoder_0</source_block_id>
+    <source_block_id>low_pass_filter_0</source_block_id>
     <sink_block_id>blocks_null_sink_0</sink_block_id>
-    <source_key>1</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>rfid_tag_decoder_0</source_block_id>
-    <sink_block_id>rfid_reader_0</sink_block_id>
-    <source_key>0</source_key>
-    <sink_key>0</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>uhd_usrp_source_0</source_block_id>
-    <sink_block_id>blocks_file_sink_0_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
