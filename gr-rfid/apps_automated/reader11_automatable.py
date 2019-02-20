@@ -59,9 +59,9 @@ class reader_top_block(gr.top_block):
     rt = gr.enable_realtime_scheduling() 
 
     ######## Variables #########
-    self.dac_rate = 2e6                 # DAC rate 
-    self.adc_rate = 0.8e6            # ADC rate (2MS/s complex samples)
-    self.decim     = 2                    # Decimation (downsampling factor)
+    self.dac_rate = 0.5e6                 # DAC rate 
+    self.adc_rate = 2e6            # ADC rate (2MS/s complex samples)
+    self.decim     = 5                    # Decimation (downsampling factor)
     self.ampl     = 0.5                  # Output signal amplitude (signal power vary for different RFX900 cards)
     self.tx_freq_1 = float(sys.argv[1])*1e6  # Modulation frequency (can be set between 902-920)
     self.tx_freq_2 = float(sys.argv[2])*1e6  # Modulation frequency (can be set between 902-920)

@@ -12,8 +12,8 @@ with open("calibration_data.csv","ab") as csvfile:
     writer.writerow(['freq_1','freq_2','tx_power_1','tx_power_2', 'tag_power_from_SA'])
 
 
-freq_1='910'
-freq_2='910'
+freq_1='911'
+freq_2='911'
 power_1='5'
 power_2='5'
 
@@ -57,7 +57,7 @@ while not (usrp_no==1 or usrp_no==2):
     usrp_no = int(input("Which USRP is connected (1/2) ->"))
     print(usrp_no,type(usrp_no))
 #print("Running power sweep from 0 to 15 and back")
-#power_sweep(0,15,31)
-for a in [5,14.5]:
-    run_test('910','910','5',str(a))
+power_sweep(0,15,31)
+#for a in [5,14.5]:
+#    run_test('910','910','5',str(a))
 

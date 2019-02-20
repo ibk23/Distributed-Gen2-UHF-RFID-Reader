@@ -14,8 +14,8 @@ with open("dataoutput.csv","w") as csvfile:
 
 freq_1='910'
 freq_2='910'
-power_1='3.0'
-power_2='3'
+power_1='5'
+power_2='0'
 
 
 def frequency_sweep(start, fin, no_steps):
@@ -84,11 +84,11 @@ def run_test(freq_1,freq_2,power_1,power_2):
             writer.writerow([freq_1, freq_2, power_1, power_2]+[suc for suc in successes]+[at for at in attempts])
 
 
-#twod_sweep(911,915,30,5.7,5.9,3)
+twod_sweep(910,915,6,5,10,6)
 #run_test('910','910','7','7')
 #twod_sweep(910,915,10,3,6,10)
 #twod_sweep(910,915,5,6,10,5)
-twod_sweep_tx1_only(910,915,5,6,10,5)
+#twod_sweep_tx1_only(910,915,6,10,12.5,6)
 #frequency_sweep(910,916,2)
 #frequency_sweep(915,918,18)
 #power_sweep(3,7,15)
