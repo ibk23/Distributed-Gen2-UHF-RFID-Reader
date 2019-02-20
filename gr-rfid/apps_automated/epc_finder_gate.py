@@ -255,13 +255,13 @@ def count_rn16s_gate(numpyarray):
         plt.plot(norm_correlated)
     
     #start_location = np.argmax(correlated)
-    print("Highest peak is ",np.amax(norm_correlated))
-    a = np.where(norm_correlated > .9*np.amax(norm_correlated))
+    print("Highest peak is ",np.amax(correlated))
+    a = np.where((correlated > 25) & (correlated>.9*np.amax(correlated)))#.9*np.amax(correlated))
     print(a)
 
     b = np.take(a, argrelextrema(norm_correlated[a], np.greater)[0])
     print(argrelextrema(norm_correlated[a], np.greater))
-    y =  [norm_correlated[b_val] for b_val in b]
+    y =  [norm_correlated[b_val]+0.2 for b_val in b]
     plt.plot(b,y,'rs')
     print("Number of RN16 peaks is ",len(b))
     return len(b)
@@ -279,7 +279,11 @@ def count():
 
 
     count_rn16 = count_rn16s_gate(abs_f)
-    return count_rn16
-    if plotit:
+
+    if __name__=='__main__':
         plt.plot(abs_f)
         plt.show()
+    return count_rn16
+
+if __name__=='__main__':
+    count()
