@@ -244,9 +244,10 @@ def count_rn16s():
 def count_rn16s_gate(numpyarray):
     """Find the preamble of RN16 using cross-correlation"""
     # TODO downsample for speed, if reliable enough.
-    sampled_signal = np.concatenate((2 * half_symbol_length * [1], half_symbol_length * [-1], half_symbol_length * [1],
+    sampled_signal = np.concatenate((1 * half_symbol_length * [-1],
+2 * half_symbol_length * [1], half_symbol_length * [-1], half_symbol_length * [1],
                                      2 * half_symbol_length * [-1], half_symbol_length * [1],
-                                     3 * half_symbol_length * [-1], half_symbol_length * [1]))
+                                     3 * half_symbol_length * [-5], half_symbol_length * [1]))
     # flipped = np.flipud(sampled_signal) #Usefull if convolving
     correlated = np.correlate(numpyarray - np.mean(numpyarray), sampled_signal)
     norm_correlated =     correlated/ np.amax(correlated)
@@ -255,28 +256,30 @@ def count_rn16s_gate(numpyarray):
     
     #start_location = np.argmax(correlated)
     print("Highest peak is ",np.amax(norm_correlated))
-    a = np.where(correlated > .99*np.amax(norm_correlated))
+    a = np.where(norm_correlated > .9*np.amax(norm_correlated))
     print(a)
 
     b = np.take(a, argrelextrema(norm_correlated[a], np.greater)[0])
+    print(argrelextrema(norm_correlated[a], np.greater))
     y =  [norm_correlated[b_val] for b_val in b]
     plt.plot(b,y,'rs')
-    print(b)
+    print("Number of RN16 peaks is ",len(b))
+    return len(b)
 
-# File operations
-f = scipy.fromfile(open(getcwd() + '/' + relative_path_to_file), dtype=scipy.float32)
-if verbose:
-    print("Number of datapoints is:", f.size)
-f = f[first_sample:last_sample]
-abs_f = abs(f[0::2] + 1j * f[1::2])
-abs_f = abs_f / np.amax(abs_f)
-# Matched filter to reduce hf noise
-abs_f = scipy.signal.correlate(abs_f, np.ones(decim), mode='same') / decim
+def count():
+    # File operations
+    f = scipy.fromfile(open(getcwd() + '/' + relative_path_to_file), dtype=scipy.float32)
+    if verbose:
+        print("Number of datapoints is:", f.size)
+    #f = f[first_sample:last_sample]
+    abs_f = abs(f[0::2] + 1j * f[1::2])
+    abs_f = abs_f / np.amax(abs_f)
+    # Matched filter to reduce hf noise
+    abs_f = scipy.signal.correlate(abs_f, np.ones(decim), mode='same') / decim
 
 
-count_rn16 = 0
-count_rn16s_gate(abs_f)
-print(count_rn16)
-if plotit:
-    plt.plot(abs_f)
-    plt.show()
+    count_rn16 = count_rn16s_gate(abs_f)
+    return count_rn16
+    if plotit:
+        plt.plot(abs_f)
+        plt.show()
