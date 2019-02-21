@@ -244,23 +244,27 @@ def count_rn16s():
 def count_rn16s_gate(numpyarray):
     """Find the preamble of RN16 using cross-correlation"""
     # TODO downsample for speed, if reliable enough.
-    sampled_signal = np.concatenate((1 * half_symbol_length * [-1],
+    sampled_signal = np.concatenate(( 1 * half_symbol_length * [-1],
 2 * half_symbol_length * [1], half_symbol_length * [-1], half_symbol_length * [1],
                                      2 * half_symbol_length * [-1], half_symbol_length * [1],
                                      3 * half_symbol_length * [-5], half_symbol_length * [1]))
     # flipped = np.flipud(sampled_signal) #Usefull if convolving
-    correlated = np.correlate(numpyarray - np.mean(numpyarray), sampled_signal)
+    
+    #First round the numpyarray to give nice squarewaves
+    rounded = np.around(numpyarray/np.amax(numpyarray))
+    #print(rounded)
+    correlated = np.correlate(rounded - np.mean(rounded), sampled_signal)
     norm_correlated =     correlated/ np.amax(correlated)
     if plotit:
         plt.plot(norm_correlated)
     
     #start_location = np.argmax(correlated)
-    print("Highest peak is ",np.amax(correlated))
+    print("Highest peak is ",np.amax(correlated),np.amax(norm_correlated))
     #peaks, _ = find_peaks(x, height=27)
     #peak_locations = np.take(a, argrelextrema(norm_correlated[a], np.greater)[0])
     peak_locations = argrelextrema(correlated, np.greater)[0]
-    filtered_peak_locations = peak_locations[correlated[peak_locations] > 27]
-    filtered_peak_locations = filtered_peak_locations[correlated[filtered_peak_locations] > 0.92*np.amax(correlated)]
+    filtered_peak_locations = peak_locations[correlated[peak_locations] > 20]
+    filtered_peak_locations = filtered_peak_locations[correlated[filtered_peak_locations] > 0.75*np.amax(correlated)]
     
     #Remove peaks that are too close together.
     distance_between_peaks = filtered_peak_locations[1:]-filtered_peak_locations[:-1]
@@ -297,7 +301,8 @@ def count():
     count_rn16 = count_rn16s_gate(abs_f)
 
     if __name__=='__main__':
-        plt.plot(abs_f)
+#        plt.plot(abs_f)
+        plt.plot(np.around(abs_f/np.amax(abs_f)))   
         plt.show()
     return count_rn16
 

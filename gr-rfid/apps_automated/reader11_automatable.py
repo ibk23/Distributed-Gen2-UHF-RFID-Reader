@@ -86,7 +86,9 @@ class reader_top_block(gr.top_block):
     self.file_sink_sink           = blocks.file_sink(gr.sizeof_gr_complex*1, "../misc/data/sink", False)
 
     ######## Blocks #########
-    self.low_pass  = filter.fir_filter_ccc(self.decim, self.num_taps);
+    #self.low_pass  = filter.fir_filter_ccc(self.decim, self.num_taps);
+    self.low_pass = filter.fir_filter_ccf(self.decim, firdes.low_pass(
+        	1, self.adc_rate, 200000, 100000, firdes.WIN_HAMMING, 6.76))
     #self.low_pass = filter.fir_filter_ccf(5, firdes.low_pass(1, self.adc_rate, 50000, 50000, firdes.WIN_HAMMING, 6.76))
     self.gate            = rfid.gate(int(self.adc_rate/self.decim))
     self.tag_decoder     = rfid.tag_decoder(int(self.adc_rate/self.decim))
