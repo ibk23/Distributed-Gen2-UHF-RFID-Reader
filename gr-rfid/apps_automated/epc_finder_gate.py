@@ -260,16 +260,24 @@ def count_rn16s_gate(numpyarray):
     #peak_locations = np.take(a, argrelextrema(norm_correlated[a], np.greater)[0])
     peak_locations = argrelextrema(correlated, np.greater)[0]
     filtered_peak_locations = peak_locations[correlated[peak_locations] > 27]
-    filtered_peak_locations = filtered_peak_locations[correlated[filtered_peak_locations] > 0.93*np.amax(correlated)]
+    filtered_peak_locations = filtered_peak_locations[correlated[filtered_peak_locations] > 0.92*np.amax(correlated)]
     
-    print("Peak locs",peak_locations)
-    print("filtered_peak_locations locs",filtered_peak_locations)
+    #Remove peaks that are too close together.
+    distance_between_peaks = filtered_peak_locations[1:]-filtered_peak_locations[:-1]
+    to_remove = distance_between_peaks<200
+    to_remove= np.append(to_remove,[False])
+    np.where(to_remove)
+    filtered_peak_locations = np.delete(filtered_peak_locations, np.where(to_remove))
+    
+    #print("Peak locs",peak_locations)
+    #print("filtered_peak_locations locs",filtered_peak_locations)
     #a = np.where((correlated > 25) & (correlated>.9*np.amax(correlated)))#.9*np.amax(correlated))
     #print(a)
 
     
     #print(argrelextrema(norm_correlated[a], np.greater))
     y =  [norm_correlated[x]+0.2 for x in filtered_peak_locations]
+    
     plt.plot(filtered_peak_locations,y,'rs')
     print("Number of RN16 peaks is ",len(filtered_peak_locations))
     return len(filtered_peak_locations)
