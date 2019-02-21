@@ -256,15 +256,23 @@ def count_rn16s_gate(numpyarray):
     
     #start_location = np.argmax(correlated)
     print("Highest peak is ",np.amax(correlated))
-    a = np.where((correlated > 25) & (correlated>.9*np.amax(correlated)))#.9*np.amax(correlated))
-    print(a)
+    #peaks, _ = find_peaks(x, height=27)
+    #peak_locations = np.take(a, argrelextrema(norm_correlated[a], np.greater)[0])
+    peak_locations = argrelextrema(correlated, np.greater)[0]
+    filtered_peak_locations = peak_locations[correlated[peak_locations] > 27]
+    filtered_peak_locations = filtered_peak_locations[correlated[filtered_peak_locations] > 0.93*np.amax(correlated)]
+    
+    print("Peak locs",peak_locations)
+    print("filtered_peak_locations locs",filtered_peak_locations)
+    #a = np.where((correlated > 25) & (correlated>.9*np.amax(correlated)))#.9*np.amax(correlated))
+    #print(a)
 
-    b = np.take(a, argrelextrema(norm_correlated[a], np.greater)[0])
-    print(argrelextrema(norm_correlated[a], np.greater))
-    y =  [norm_correlated[b_val]+0.2 for b_val in b]
-    plt.plot(b,y,'rs')
-    print("Number of RN16 peaks is ",len(b))
-    return len(b)
+    
+    #print(argrelextrema(norm_correlated[a], np.greater))
+    y =  [norm_correlated[x]+0.2 for x in filtered_peak_locations]
+    plt.plot(filtered_peak_locations,y,'rs')
+    print("Number of RN16 peaks is ",len(filtered_peak_locations))
+    return len(filtered_peak_locations)
 
 def count():
     # File operations

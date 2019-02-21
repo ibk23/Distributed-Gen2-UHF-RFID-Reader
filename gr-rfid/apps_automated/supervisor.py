@@ -59,7 +59,7 @@ def run_test(freq_1,freq_2,power_1,power_2):
     attempts=[]
     successes=[]
     rn16_plus_epc=[]
-    for run in range(1):
+    for run in range(3):
         print('\n',freq_1,freq_2,power_1,power_2,"Run:",run, end='')
         with tempfile.TemporaryFile() as tempf:
             if not (900<float(freq_1)<931 and 
@@ -78,7 +78,10 @@ def run_test(freq_1,freq_2,power_1,power_2):
                 attempts.append(re.findall("Number of queries\/queryreps sent : (.*)", tempf.read())[0])
                 tempf.seek(0)
                 successes.append(re.findall("Correctly decoded EPC : (.*)", tempf.read())[0])
-                rn16_plus_epc.append(epc_finder_gate.count())
+                try:                
+                    rn16_plus_epc.append(epc_finder_gate.count())
+                except:
+                    print("Error with the gate file")
     print([suc for suc in successes],[at for at in attempts])
     with open("dataoutput.csv","ab") as csvfile:
         if successes and attempts:
@@ -86,14 +89,14 @@ def run_test(freq_1,freq_2,power_1,power_2):
             writer.writerow([freq_1, freq_2, power_1, power_2]+[suc for suc in successes]+[at for at in attempts]+[rn for rn in rn16_plus_epc])
 
 
-#twod_sweep(910,915,6,5,10,6)
+#twod_sweep(910,915,11,7,12,11)
 #run_test('910','910','7','7')
 #twod_sweep(910,915,10,3,6,10)
 #twod_sweep(910,915,5,6,10,5)
 #twod_sweep_tx1_only(910,915,6,10,12.5,6)
 #frequency_sweep(910,916,2)
 #frequency_sweep(915,918,18)
-power_sweep(9.3,11,1)
+power_sweep(9.5,11,1)
 #power_sweep(8.6,9.4,15)
 #power_sweep(8.5,10.5,30)
 
