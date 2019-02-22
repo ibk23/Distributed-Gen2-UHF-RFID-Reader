@@ -7,16 +7,30 @@ import numpy as np
 import epc_finder_gate
 
 #delete csv file
-with open("dataoutput.csv","w") as csvfile:
-    writer = csv.writer(csvfile)
-    writer.writerow(['freq_1', 'freq_2', 'power_1', 'power_2', 'run1_success', 'run2_s','run3_s','run1_attempts','run2_a','run3_a'])
+
 
 
 freq_1='910'
 freq_2='910'
 power_1='5'
 power_2='0'
+no_repeats=3
 
+#Ensure this is set in reader*.py as well. 
+TX_FAKE_DATA = True
+
+if TX_FAKE_DATA:
+    with open("dataoutput.csv","w") as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(['freq_1', 'freq_2', 'power_1', 'power_2']+
+                        ["RN16s_run"+str(d+1) for d in range(no_repeats)])
+else:
+    with open("dataoutput.csv","w") as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(['freq_1', 'freq_2', 'power_1', 'power_2']+
+                        ["run"+str(d+1)+"_successes" for d in range(no_repeats)]+
+                        ["run"+str(d+1)+"_attempts" for d in range(no_repeats)]+
+                        ["RN16s_run"+str(d+1) for d in range(no_repeats)])
 
 def frequency_sweep(start, fin, no_steps):
     print("Running test with params",freq_1,power_1,power_2)
@@ -59,7 +73,7 @@ def run_test(freq_1,freq_2,power_1,power_2):
     attempts=[]
     successes=[]
     rn16_plus_epc=[]
-    for run in range(1):
+    for run in range(no_repeats):
         print('\n',freq_1,freq_2,power_1,power_2,"Run:",run, end='')
         with tempfile.TemporaryFile() as tempf:
             if not (900<float(freq_1)<931 and 
@@ -72,15 +86,16 @@ def run_test(freq_1,freq_2,power_1,power_2):
                                      'python', 'reader11_automatable.py', 
                                      freq_1, freq_2,power_1, power_2], stdout=tempf)
             proc.wait()
-            tempf.seek(0)
-            if re.search("Number of queries\/queryreps sent : (.*)", tempf.read()):
+            if not TX_FAKE_DATA:
                 tempf.seek(0)
-                attempts.append(re.findall("Number of queries\/queryreps sent : (.*)", tempf.read())[0])
-                tempf.seek(0)
-                successes.append(re.findall("Correctly decoded EPC : (.*)", tempf.read())[0])
-            else:
-                attempts.append("")
-                successes.append("")
+                if re.search("Number of queries\/queryreps sent : (.*)", tempf.read()):
+                    tempf.seek(0)
+                    attempts.append(re.findall("Number of queries\/queryreps sent : (.*)", tempf.read())[0])
+                    tempf.seek(0)
+                    successes.append(re.findall("Correctly decoded EPC : (.*)", tempf.read())[0])
+                else:
+                    attempts.append("")
+                    successes.append("")
             try:                
                 rn16_plus_epc.append(epc_finder_gate.count())
             except:
@@ -88,14 +103,13 @@ def run_test(freq_1,freq_2,power_1,power_2):
                 rn16_plus_epc.append("")
     print([suc for suc in successes],[at for at in attempts],[rn for rn in rn16_plus_epc])
     with open("dataoutput.csv","ab") as csvfile:
-        if successes and attempts:
-            writer = csv.writer(csvfile)
-            writer.writerow([freq_1, freq_2, power_1, power_2]+[suc for suc in successes]+[at for at in attempts]+[rn for rn in rn16_plus_epc])
+        writer = csv.writer(csvfile)
+        writer.writerow([freq_1, freq_2, power_1, power_2]+[suc for suc in successes]+[at for at in attempts]+[rn for rn in rn16_plus_epc])
 
 
-#twod_sweep(910,915,6,7,12,6)
+twod_sweep(910,915,11,8,12,9)
 #twod_sweep(912.5,914.5,5,7,12,11)
-run_test('910','910','5','11')
+#run_test('910','912','5','7')
 #twod_sweep(910,915,10,3,6,10)
 #twod_sweep(915,915,1,10,11,1)
 #twod_sweep_tx1_only(910,915,6,10,12.5,6)
