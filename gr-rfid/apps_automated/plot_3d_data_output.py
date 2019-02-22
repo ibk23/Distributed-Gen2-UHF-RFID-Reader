@@ -22,14 +22,18 @@ ax = fig.add_subplot(111, projection='3d')
 with open('dataoutput.csv') as csvfile:
     reader = csv.reader(csvfile)
     headers = next(reader, None)
+    num_repeats=len(headers[4:])
+    print("NUmber of repeats is",num_repeats)
     for row in reader:
-        #print(row)
+        print(row)
+        avg_rn16 = sum([int(a) for a in filter(None,  row[4:])])/len(filter(None, row[4:]))
+        print("avg rn16 is ",avg_rn16)
         ax.scatter(total_power(correct_tx1(float(row[2])),correct_tx2(float(row[3]))),
-                   abs(float(row[1])-float(row[0])),float(row[4]), c='r', marker='o')
+                   abs(float(row[1])-float(row[0])),avg_rn16, c='r', marker='o')
         pass
 
-ax.set_xlabel('X Label')
-ax.set_ylabel('Y Label')
-ax.set_zlabel('Z Label')
+ax.set_xlabel('Power at tag')
+ax.set_ylabel('Frequency Separation')
+ax.set_zlabel('Number of RN16 reads')
 
 plt.show()

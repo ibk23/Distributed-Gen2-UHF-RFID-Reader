@@ -12,9 +12,10 @@ import epc_finder_gate
 
 freq_1='910'
 freq_2='910'
-power_1='5'
-power_2='0'
+power_1='8'
+power_2='8'
 no_repeats=3
+delay='0'
 
 #Ensure this is set in reader*.py as well. 
 TX_FAKE_DATA = True
@@ -22,15 +23,21 @@ TX_FAKE_DATA = True
 if TX_FAKE_DATA:
     with open("dataoutput.csv","w") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(['freq_1', 'freq_2', 'power_1', 'power_2']+
+        writer.writerow(['freq_1', 'freq_2', 'power_1', 'power_2','delay']+
                         ["RN16s_run"+str(d+1) for d in range(no_repeats)])
 else:
     with open("dataoutput.csv","w") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(['freq_1', 'freq_2', 'power_1', 'power_2']+
+        writer.writerow(['freq_1', 'freq_2', 'power_1', 'power_2','delay']+
                         ["run"+str(d+1)+"_successes" for d in range(no_repeats)]+
                         ["run"+str(d+1)+"_attempts" for d in range(no_repeats)]+
                         ["RN16s_run"+str(d+1) for d in range(no_repeats)])
+
+def delay_sweep(start, fin, no_steps):
+    global delay
+    for delay_samples in np.linspace(start, fin, no_steps):
+        delay = str(delay_samples)
+        run_test(freq_1,freq_2,power_1,power_2)
 
 def frequency_sweep(start, fin, no_steps):
     print("Running test with params",freq_1,power_1,power_2)
@@ -83,8 +90,8 @@ def run_test(freq_1,freq_2,power_1,power_2):
                 print("Looks like freq or power is wrong, quitting.",freq_1,freq_2,power_1,power_2)
                 break
             proc = subprocess.Popen(['sudo', 'GR_SCHEDULER=STS', 'nice', '-n', '-20', 
-                                     'python', 'reader11_automatable.py', 
-                                     freq_1, freq_2,power_1, power_2], stdout=tempf)
+                                     'python', 'reader12_automatable.py', 
+                                     freq_1, freq_2,power_1, power_2, delay], stdout=tempf)
             proc.wait()
             if not TX_FAKE_DATA:
                 tempf.seek(0)
@@ -104,12 +111,13 @@ def run_test(freq_1,freq_2,power_1,power_2):
     print([suc for suc in successes],[at for at in attempts],[rn for rn in rn16_plus_epc])
     with open("dataoutput.csv","ab") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow([freq_1, freq_2, power_1, power_2]+[suc for suc in successes]+[at for at in attempts]+[rn for rn in rn16_plus_epc])
+        writer.writerow([freq_1, freq_2, power_1, power_2,delay]+[suc for suc in successes]+[at for at in attempts]+[rn for rn in rn16_plus_epc])
 
-
-twod_sweep(910,915,11,8,12,9)
+delay='3'
+#delay_sweep(0,10,11)
+#twod_sweep(915.5,917.5,5,8.5,10,11)
 #twod_sweep(912.5,914.5,5,7,12,11)
-#run_test('910','912','5','7')
+run_test('910','911','8','8')
 #twod_sweep(910,915,10,3,6,10)
 #twod_sweep(915,915,1,10,11,1)
 #twod_sweep_tx1_only(910,915,6,10,12.5,6)

@@ -5,14 +5,14 @@ import numpy as np
 from os import getcwd
 
 # relative_path_to_file = '../data/Corilateme/source'
-relative_path_to_file = '../misc/data/file_source_test'
-decim = 5  # decimation of matched filter
-samp_rate = (10 * 10 ** 6) / decim  # Samples per second
+relative_path_to_file = '../misc/data/source'
+decim = 1  # decimation of matched filter
+samp_rate = (2 * 10 ** 6) / decim  # Samples per second
 half_symbol_length = int(round(12.5 * 10 ** -6 * samp_rate))
 print("Sample rate is ", samp_rate)
 print("Half symbol length is ", half_symbol_length)
 # Reduce computation by specifying a range to look at
-first_sample = 90000
+first_sample = 0
 last_sample = 14000000
 verbose = False
 plotit = True
@@ -222,6 +222,7 @@ def count_rn16s():
 
         if 17 > data_len > 14:
             # probably a RN16
+            print("RN16 at location",start_rn16_loc)
             if verbose:
                 print("Found a RN16", rn16_test, len(rn16_test))
             # Start position is the first transmsiion
