@@ -14,6 +14,7 @@ import rfid
 import time
 
 DEBUG = False
+TX_FAKE_DATA = True
 
 class reader_top_block(gr.top_block):
 
@@ -92,9 +93,13 @@ class reader_top_block(gr.top_block):
     #self.low_pass = filter.fir_filter_ccf(5, firdes.low_pass(1, self.adc_rate, 50000, 50000, firdes.WIN_HAMMING, 6.76))
     self.gate            = rfid.gate(int(self.adc_rate/self.decim))
     self.tag_decoder     = rfid.tag_decoder(int(self.adc_rate/self.decim))
-    self.reader          = rfid.reader(int(self.adc_rate/self.decim),int(self.dac_rate))
+    if TX_FAKE_DATA:
+      self.reader = blocks.file_source(gr.sizeof_float*1, "../misc/data/file_reader_test",False)
+    else:
+      self.reader          = rfid.reader(int(self.adc_rate/self.decim),int(self.dac_rate))
     self.amp             = blocks.multiply_const_ff(self.ampl)
     self.to_complex      = blocks.float_to_complex()
+    self.null_sink = blocks.null_sink(gr.sizeof_float*1)
     #self.delay		 = blocks.delay(gr.sizeof_gr_complex*1, 0)
     
     if (DEBUG == False) : # Real Time Execution
@@ -108,7 +113,10 @@ class reader_top_block(gr.top_block):
       self.connect(self.low_pass, self.gate)
 
       self.connect(self.gate, self.tag_decoder)
-      self.connect((self.tag_decoder,0), self.reader)
+      if TX_FAKE_DATA:
+        self.connect((self.tag_decoder,0),self.null_sink) #No longer need this data
+      else:
+        self.connect((self.tag_decoder,0), self.reader)
       self.connect(self.reader, self.amp)
       self.connect(self.amp, self.to_complex)
       self.connect(self.to_complex, (self.sink,0))
@@ -120,14 +128,15 @@ class reader_top_block(gr.top_block):
       #self.connect(self.source, self.file_sink_source)
 
     else :  # Offline Data
-      self.file_source               = blocks.file_source(gr.sizeof_gr_complex*1, "../misc/data/file_source_test",False)   ## instead of uhd.usrp_source
-      self.file_sink                  = blocks.file_sink(gr.sizeof_gr_complex*1,   "../misc/data/file_sink", False)     ## instead of uhd.usrp_sink
+      self.file_source = blocks.file_source(gr.sizeof_gr_complex*1, "../misc/data/file_source_test",False)   ## instead of uhd.usrp_source
+      self.file_sink = blocks.file_sink(gr.sizeof_gr_complex*1,   "../misc/data/file_sink", False)     ## instead of uhd.usrp_sink
  
       ######## Connections ######### 
       self.connect(self.file_source, self.matched_filter)
       self.connect(self.matched_filter, self.gate)
       self.connect(self.gate, self.tag_decoder)
-      self.connect((self.tag_decoder,0), self.reader)
+      if not TX_FAKE_DATA:
+        self.connect((self.tag_decoder,0), self.reader)
       self.connect(self.reader, self.amp)
       self.connect(self.amp, self.to_complex)
       self.connect(self.to_complex, self.file_sink)
@@ -152,6 +161,6 @@ if __name__ == '__main__':
   #  inp = raw_input("'Q' to quit \n")
   #  if (inp == "q" or inp == "Q"):
   #    break
-
-  main_block.reader.print_results()
+  if not TX_FAKE_DATA:
+    main_block.reader.print_results()
   main_block.stop()

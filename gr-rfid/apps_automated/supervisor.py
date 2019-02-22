@@ -78,20 +78,24 @@ def run_test(freq_1,freq_2,power_1,power_2):
                 attempts.append(re.findall("Number of queries\/queryreps sent : (.*)", tempf.read())[0])
                 tempf.seek(0)
                 successes.append(re.findall("Correctly decoded EPC : (.*)", tempf.read())[0])
-                try:                
-                    rn16_plus_epc.append(epc_finder_gate.count())
-                except:
-                    print("Error with the gate file")
-    print([suc for suc in successes],[at for at in attempts])
+            else:
+                attempts.append("")
+                successes.append("")
+            try:                
+                rn16_plus_epc.append(epc_finder_gate.count())
+            except:
+                print("Error with the gate file")
+                rn16_plus_epc.append("")
+    print([suc for suc in successes],[at for at in attempts],[rn for rn in rn16_plus_epc])
     with open("dataoutput.csv","ab") as csvfile:
         if successes and attempts:
             writer = csv.writer(csvfile)
             writer.writerow([freq_1, freq_2, power_1, power_2]+[suc for suc in successes]+[at for at in attempts]+[rn for rn in rn16_plus_epc])
 
 
-#twod_sweep(910,915,11,7,12,11)
+#twod_sweep(910,915,6,7,12,6)
 #twod_sweep(912.5,914.5,5,7,12,11)
-run_test('910','910.5','5','9')
+run_test('910','910','5','11')
 #twod_sweep(910,915,10,3,6,10)
 #twod_sweep(915,915,1,10,11,1)
 #twod_sweep_tx1_only(910,915,6,10,12.5,6)
