@@ -18,7 +18,7 @@ no_repeats=3
 delay='0'
 
 #Ensure this is set in reader*.py as well. 
-TX_FAKE_DATA = True
+TX_FAKE_DATA = False
 
 if TX_FAKE_DATA:
     with open("dataoutput.csv","w") as csvfile:
@@ -113,11 +113,11 @@ def run_test(freq_1,freq_2,power_1,power_2):
         writer = csv.writer(csvfile)
         writer.writerow([freq_1, freq_2, power_1, power_2,delay]+[suc for suc in successes]+[at for at in attempts]+[rn for rn in rn16_plus_epc])
 
-delay='3'
+delay='0'
 #delay_sweep(0,10,11)
 #twod_sweep(915.5,917.5,5,8.5,10,11)
 #twod_sweep(912.5,914.5,5,7,12,11)
-run_test('910','911','8','8')
+run_test('910','910','9','9')
 #twod_sweep(910,915,10,3,6,10)
 #twod_sweep(915,915,1,10,11,1)
 #twod_sweep_tx1_only(910,915,6,10,12.5,6)

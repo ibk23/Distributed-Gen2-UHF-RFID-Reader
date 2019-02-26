@@ -14,8 +14,19 @@ import rfid
 import time
 
 DEBUG = False
-TX_FAKE_DATA = True
-DELAY_ONE_TX = True
+TX_FAKE_DATA = False
+try:
+  if int(sys.argv[5]) !=0:
+    DELAY_ONE_TX = True
+  else:
+    DELAY_ONE_TX = False
+except:
+  DELAY_ONE_TX = False
+
+if DELAY_ONE_TX:
+  print("Delaying one transmitter")
+else:
+  print("no delay used")
 
 class reader_top_block(gr.top_block):
 
@@ -61,7 +72,7 @@ class reader_top_block(gr.top_block):
     rt = gr.enable_realtime_scheduling() 
 
     ######## Variables #########
-    self.dac_rate = 0.5e6                 # DAC rate 
+    self.dac_rate = 1e6                 # DAC rate 
     self.adc_rate = 2e6            # ADC rate (2MS/s complex samples)
     self.decim     = 5                    # Decimation (downsampling factor)
     self.ampl     = 0.5                  # Output signal amplitude (signal power vary for different RFX900 cards)
@@ -102,7 +113,9 @@ class reader_top_block(gr.top_block):
     self.gate            = rfid.gate(int(self.adc_rate/self.decim))
     self.tag_decoder     = rfid.tag_decoder(int(self.adc_rate/self.decim))
     if TX_FAKE_DATA:
-      self.reader = blocks.file_source(gr.sizeof_float*1, "../misc/data/file_reader_test",False)
+      #self.reader = blocks.file_source(gr.sizeof_float*1, "../misc/data/file_reader_test_0.5M",False)
+      #self.reader = blocks.file_source(gr.sizeof_float*1, "../misc/data/file_reader_test_1M",False)
+      self.reader = blocks.file_source(gr.sizeof_float*1, "../misc/data/file_reader_test_2M",False)
     else:
       self.reader          = rfid.reader(int(self.adc_rate/self.decim),int(self.dac_rate))
     self.amp             = blocks.multiply_const_ff(self.ampl)
