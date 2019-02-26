@@ -4,19 +4,40 @@ import tempfile
 import re 
 import csv
 import numpy as np
-
+import epc_finder_gate
 
 #delete csv file
-with open("dataoutput.csv","w") as csvfile:
-    writer = csv.writer(csvfile)
-    writer.writerow(['freq_1', 'freq_2', 'power_1', 'power_2', 'run1_success', 'run2_s','run3_s','run1_attempts','run2_a','run3_a'])
+
 
 
 freq_1='910'
 freq_2='910'
-power_1='5'
-power_2='0'
+power_1='8'
+power_2='8'
+no_repeats=3
+delay='0'
 
+#Ensure this is set in reader*.py as well. 
+TX_FAKE_DATA = False
+
+if TX_FAKE_DATA:
+    with open("dataoutput.csv","w") as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(['freq_1', 'freq_2', 'power_1', 'power_2','delay']+
+                        ["RN16s_run"+str(d+1) for d in range(no_repeats)])
+else:
+    with open("dataoutput.csv","w") as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(['freq_1', 'freq_2', 'power_1', 'power_2','delay']+
+                        ["run"+str(d+1)+"_successes" for d in range(no_repeats)]+
+                        ["run"+str(d+1)+"_attempts" for d in range(no_repeats)]+
+                        ["RN16s_run"+str(d+1) for d in range(no_repeats)])
+
+def delay_sweep(start, fin, no_steps):
+    global delay
+    for delay_samples in np.linspace(start, fin, no_steps):
+        delay = str(delay_samples)
+        run_test(freq_1,freq_2,power_1,power_2)
 
 def frequency_sweep(start, fin, no_steps):
     print("Running test with params",freq_1,power_1,power_2)
@@ -58,7 +79,8 @@ def twod_sweep_tx1_only(start_f,end_f,steps_f,start_p,end_p,steps_p):
 def run_test(freq_1,freq_2,power_1,power_2):
     attempts=[]
     successes=[]
-    for run in range(3):
+    rn16_plus_epc=[]
+    for run in range(no_repeats):
         print('\n',freq_1,freq_2,power_1,power_2,"Run:",run, end='')
         with tempfile.TemporaryFile() as tempf:
             if not (900<float(freq_1)<931 and 
@@ -68,30 +90,40 @@ def run_test(freq_1,freq_2,power_1,power_2):
                 print("Looks like freq or power is wrong, quitting.",freq_1,freq_2,power_1,power_2)
                 break
             proc = subprocess.Popen(['sudo', 'GR_SCHEDULER=STS', 'nice', '-n', '-20', 
-                                     'python', 'reader11_automatable.py', 
-                                     freq_1, freq_2,power_1, power_2], stdout=tempf)
+                                     'python', 'reader12_automatable.py', 
+                                     freq_1, freq_2,power_1, power_2, delay], stdout=tempf)
             proc.wait()
-            tempf.seek(0)
-            if re.search("Number of queries\/queryreps sent : (.*)", tempf.read()):
+            if not TX_FAKE_DATA:
                 tempf.seek(0)
-                attempts.append(re.findall("Number of queries\/queryreps sent : (.*)", tempf.read())[0])
-                tempf.seek(0)
-                successes.append(re.findall("Correctly decoded EPC : (.*)", tempf.read())[0])
-    print([suc for suc in successes],[at for at in attempts])
+                if re.search("Number of queries\/queryreps sent : (.*)", tempf.read()):
+                    tempf.seek(0)
+                    attempts.append(re.findall("Number of queries\/queryreps sent : (.*)", tempf.read())[0])
+                    tempf.seek(0)
+                    successes.append(re.findall("Correctly decoded EPC : (.*)", tempf.read())[0])
+                else:
+                    attempts.append("")
+                    successes.append("")
+            try:                
+                rn16_plus_epc.append(epc_finder_gate.count())
+            except:
+                print("Error with the gate file")
+                rn16_plus_epc.append("")
+    print([suc for suc in successes],[at for at in attempts],[rn for rn in rn16_plus_epc])
     with open("dataoutput.csv","ab") as csvfile:
-        if successes and attempts:
-            writer = csv.writer(csvfile)
-            writer.writerow([freq_1, freq_2, power_1, power_2]+[suc for suc in successes]+[at for at in attempts])
+        writer = csv.writer(csvfile)
+        writer.writerow([freq_1, freq_2, power_1, power_2,delay]+[suc for suc in successes]+[at for at in attempts]+[rn for rn in rn16_plus_epc])
 
-
-twod_sweep(910,915,6,5,10,6)
-#run_test('910','910','7','7')
+delay='0'
+#delay_sweep(0,10,11)
+#twod_sweep(915.5,917.5,5,8.5,10,11)
+#twod_sweep(912.5,914.5,5,7,12,11)
+run_test('910','910','9','9')
 #twod_sweep(910,915,10,3,6,10)
-#twod_sweep(910,915,5,6,10,5)
+#twod_sweep(915,915,1,10,11,1)
 #twod_sweep_tx1_only(910,915,6,10,12.5,6)
 #frequency_sweep(910,916,2)
 #frequency_sweep(915,918,18)
-#power_sweep(3,7,15)
+#power_sweep(9.2,11,1)
 #power_sweep(8.6,9.4,15)
 #power_sweep(8.5,10.5,30)
 
