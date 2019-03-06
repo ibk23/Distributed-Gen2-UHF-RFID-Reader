@@ -2,3 +2,6 @@ gr-rfid/build/
 GPATH
 GRTAGS
 GTAGS
+gr-rfid/misc/
+*.csv
+*.pyc
