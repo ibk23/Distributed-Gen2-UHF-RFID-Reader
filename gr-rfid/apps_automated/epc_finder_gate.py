@@ -251,6 +251,10 @@ def count_rn16s_gate(numpyarray):
     # flipped = np.flipud(sampled_signal) #Usefull if convolving
     
     norm_numpyarray = numpyarray/np.amax(numpyarray)
+    #instead of basing on peak value, base on average    
+    #norm_numpyarray = numpyarray+0.5-np.mean(numpyarray)
+    #plt.plot(norm_numpyarray)
+    #plt.show()
     #First round the numpyarray to give nice squarewaves
     rounded = np.around(norm_numpyarray)
     #print(rounded)
@@ -274,7 +278,7 @@ def count_rn16s_gate(numpyarray):
     
     #Remove peaks that are too close together.
     distance_between_peaks = filtered_peak_locations[1:]-filtered_peak_locations[:-1]
-    to_remove = distance_between_peaks<200
+    to_remove = distance_between_peaks<60
     to_remove= np.append(to_remove,[False])
     #np.where(to_remove)
     filtered_peak_locations = np.delete(filtered_peak_locations, np.where(to_remove))
@@ -286,31 +290,36 @@ def count_rn16s_gate(numpyarray):
 
     
     #print(argrelextrema(norm_correlated[a], np.greater))
-    y =  [norm_correlated[x]+0.2 for x in filtered_peak_locations]
+    y =  [norm_correlated[x] for x in filtered_peak_locations]
     if __name__=='__main__':
         plt.plot(filtered_peak_locations,y,'rs')
     print("Number of RN16 peaks is ",len(filtered_peak_locations))
     return len(filtered_peak_locations)
 
-def count():
+def count(plot=False):
     # File operations
     f = scipy.fromfile(open(getcwd() + '/' + relative_path_to_file), dtype=scipy.float32)
     if verbose:
         print("Number of datapoints is:", f.size)
     #f = f[first_sample:last_sample]
     abs_f = abs(f[0::2] + 1j * f[1::2])
-    abs_f = abs_f / np.amax(abs_f)
+    try:
+        abs_f = abs_f / np.amax(abs_f)
+    except:
+        print("Error reading gate file because np.amax(abs_f)=",np.amax(abs_f))
+        return 0        
     # Matched filter to reduce hf noise
     abs_f = scipy.signal.correlate(abs_f, np.ones(decim), mode='same') / decim
 
 
     count_rn16 = count_rn16s_gate(abs_f)
 
-    if __name__=='__main__':
+    if plot:
 #        plt.plot(abs_f)
         plt.plot(np.around(abs_f/np.amax(abs_f)))   
         plt.show()
+    plt.clf()
     return count_rn16
 
 if __name__=='__main__':
-    count()
+    count(True)

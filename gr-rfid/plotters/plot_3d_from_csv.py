@@ -14,8 +14,10 @@ with open('../misc/data/RN16ForMatlab.csv') as csvfile:
     headers = next(reader, None)
     for row in reader:
         print(row)
-        ax.scatter(float(row[2]), float(row[3]), float(row[1]), c='r', marker='o')
-
+        try:
+            ax.scatter(float(row[2]), float(row[3]), float(row[1]), c='r', marker='o')
+        except Exception as e:
+            print("Could not print row due to",e)
 
 ax.set_xlabel('X Label')
 ax.set_ylabel('Y Label')

@@ -14,11 +14,12 @@ freq_1='910'
 freq_2='910'
 power_1='8'
 power_2='8'
-no_repeats=3
+no_repeats=1
 delay='0'
+SINGLE_USRP=False
 
 #Ensure this is set in reader*.py as well. 
-TX_FAKE_DATA = False
+TX_FAKE_DATA = True
 
 if TX_FAKE_DATA:
     with open("dataoutput.csv","w") as csvfile:
@@ -36,7 +37,7 @@ else:
 def delay_sweep(start, fin, no_steps):
     global delay
     for delay_samples in np.linspace(start, fin, no_steps):
-        delay = str(delay_samples)
+        delay = str(int(delay_samples))
         run_test(freq_1,freq_2,power_1,power_2)
 
 def frequency_sweep(start, fin, no_steps):
@@ -81,7 +82,7 @@ def run_test(freq_1,freq_2,power_1,power_2):
     successes=[]
     rn16_plus_epc=[]
     for run in range(no_repeats):
-        print('\n',freq_1,freq_2,power_1,power_2,"Run:",run, end='')
+        print('\n',freq_1,freq_2,power_1,power_2,"Run:",run ,"Delay:",delay, end='')
         with tempfile.TemporaryFile() as tempf:
             if not (900<float(freq_1)<931 and 
                     900<float(freq_2)<931 and 
@@ -89,7 +90,12 @@ def run_test(freq_1,freq_2,power_1,power_2):
                     float(power_2)<15):
                 print("Looks like freq or power is wrong, quitting.",freq_1,freq_2,power_1,power_2)
                 break
-            proc = subprocess.Popen(['sudo', 'GR_SCHEDULER=STS', 'nice', '-n', '-20', 
+            if SINGLE_USRP:
+              proc = subprocess.Popen(['sudo', 'GR_SCHEDULER=STS', 'nice', '-n', '-20', 
+                                     'python', 'single_tx_reader.py', 
+                                     freq_1, freq_2,power_1, power_2, delay], stdout=tempf)
+            else:
+              proc = subprocess.Popen(['sudo', 'GR_SCHEDULER=STS', 'nice', '-n', '-20', 
                                      'python', 'reader12_automatable.py', 
                                      freq_1, freq_2,power_1, power_2, delay], stdout=tempf)
             proc.wait()
@@ -103,27 +109,37 @@ def run_test(freq_1,freq_2,power_1,power_2):
                 else:
                     attempts.append("")
                     successes.append("")
-            try:                
-                rn16_plus_epc.append(epc_finder_gate.count())
-            except:
+            try:
+                no_rn16s = epc_finder_gate.count()                
+                rn16_plus_epc.append(no_rn16s)
+                #if 2<no_rn16s<198:
+                #    epc_finder_gate.count(plot=True)
+                  
+            except Exception as e: 
+                print(e)
                 print("Error with the gate file")
                 rn16_plus_epc.append("")
+          
     print([suc for suc in successes],[at for at in attempts],[rn for rn in rn16_plus_epc])
     with open("dataoutput.csv","ab") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow([freq_1, freq_2, power_1, power_2,delay]+[suc for suc in successes]+[at for at in attempts]+[rn for rn in rn16_plus_epc])
 
 delay='0'
-#delay_sweep(0,10,11)
+
+power_1='4'
+power_2='4'
+
+#delay_sweep(0,20,21)
 #twod_sweep(915.5,917.5,5,8.5,10,11)
 #twod_sweep(912.5,914.5,5,7,12,11)
-run_test('910','910','9','9')
+run_test('910','910','4','6')
 #twod_sweep(910,915,10,3,6,10)
 #twod_sweep(915,915,1,10,11,1)
 #twod_sweep_tx1_only(910,915,6,10,12.5,6)
 #frequency_sweep(910,916,2)
 #frequency_sweep(915,918,18)
-#power_sweep(9.2,11,1)
+#power_sweep(5,6,21)
 #power_sweep(8.6,9.4,15)
 #power_sweep(8.5,10.5,30)
 

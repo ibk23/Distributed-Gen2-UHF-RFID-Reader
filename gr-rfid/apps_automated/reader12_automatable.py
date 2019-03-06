@@ -14,9 +14,9 @@ import rfid
 import time
 
 DEBUG = False
-TX_FAKE_DATA = False
+TX_FAKE_DATA = True
 try:
-  if int(sys.argv[5]) !=0:
+  if int(sys.argv[5]) !='0':
     DELAY_ONE_TX = True
   else:
     DELAY_ONE_TX = False
@@ -57,7 +57,8 @@ class reader_top_block(gr.top_block):
     self.sink.set_clock_source("mimo", 1)
     self.sink.set_time_source("mimo", 1)
     self.sink.set_samp_rate(self.dac_rate)
-    self.sink.set_time_now(uhd.time_spec(time.time()), uhd.ALL_MBOARDS)
+    #self.sink.set_time_now(uhd.time_spec(time.time()), uhd.ALL_MBOARDS)
+    #self.sink.set_time_unknown_pps(uhd.time_spec())
     self.sink.set_center_freq(self.tx_freq_1, 0)
     self.sink.set_gain(self.tx_gain_1, 0)
     self.sink.set_antenna("TX/RX", 0)
@@ -72,7 +73,7 @@ class reader_top_block(gr.top_block):
     rt = gr.enable_realtime_scheduling() 
 
     ######## Variables #########
-    self.dac_rate = 1e6                 # DAC rate 
+    self.dac_rate = 2e6                 # DAC rate 
     self.adc_rate = 2e6            # ADC rate (2MS/s complex samples)
     self.decim     = 5                    # Decimation (downsampling factor)
     self.ampl     = 0.5                  # Output signal amplitude (signal power vary for different RFX900 cards)
@@ -179,7 +180,7 @@ if __name__ == '__main__':
 
   main_block = reader_top_block()
   main_block.start()
-  time.sleep(2.5)
+  time.sleep(3)
   #while(1):
   #  inp = raw_input("'Q' to quit \n")
   #  if (inp == "q" or inp == "Q"):

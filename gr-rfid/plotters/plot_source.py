@@ -11,10 +11,16 @@ decim = 5  # decimation of matched filter
 f = scipy.fromfile(open(getcwd() + '/' + relative_path_to_file), dtype=scipy.float32)
 
 abs_f = abs(f[0::2] + 1j * f[1::2])
-abs_f = abs_f / np.amax(abs_f)
+i=f[0::2]
+q=f[1::2]
+#abs_f = abs_f / np.amax(abs_f)
 # Matched filter to reduce hf noise
 #abs_f = scipy.signal.correlate(abs_f, np.ones(decim), mode='same') / decim
 
+
+plt.plot(i)   
+plt.plot(q)  
+plt.show()
 
 plt.plot(abs_f)   
 plt.show()

@@ -12,8 +12,8 @@ with open("calibration_data.csv","ab") as csvfile:
     writer.writerow(['freq_1','freq_2','tx_power_1','tx_power_2', 'tag_power_from_SA'])
 
 
-freq_1='911'
-freq_2='911'
+freq_1='910'
+freq_2='910'
 power_1='5'
 power_2='5'
 
@@ -38,7 +38,7 @@ def run_test(freq_1,freq_2,power_1,power_2):
                 float(power_2)<15):
 
             proc = subprocess.Popen(['sudo', 'GR_SCHEDULER=STS', 'nice', '-n', '-20',
-                                     'python', 'reader11_automatable.py',
+                                     'python', 'reader12_automatable.py',
                                      freq_1, freq_2,power_1, power_2], stdout=tempf)
             proc.wait()
             with open("calibration_data.csv","ab") as csvfile:
