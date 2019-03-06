@@ -14,7 +14,7 @@ freq_1='910'
 freq_2='910'
 power_1='8'
 power_2='8'
-no_repeats=1
+no_repeats=3
 delay='0'
 SINGLE_USRP=False
 
@@ -82,7 +82,7 @@ def run_test(freq_1,freq_2,power_1,power_2):
     successes=[]
     rn16_plus_epc=[]
     for run in range(no_repeats):
-        print('\n',freq_1,freq_2,power_1,power_2,"Run:",run ,"Delay:",delay, end='')
+        print('\n',freq_1,freq_2,power_1,power_2,"Run:",run ,"Delay:",delay)
         with tempfile.TemporaryFile() as tempf:
             if not (900<float(freq_1)<931 and 
                     900<float(freq_2)<931 and 
@@ -112,8 +112,8 @@ def run_test(freq_1,freq_2,power_1,power_2):
             try:
                 no_rn16s = epc_finder_gate.count()                
                 rn16_plus_epc.append(no_rn16s)
-                #if 2<no_rn16s<198:
-                #    epc_finder_gate.count(plot=True)
+                if 2<no_rn16s<198:
+                    epc_finder_gate.count(plot=True)
                   
             except Exception as e: 
                 print(e)
@@ -133,13 +133,14 @@ power_2='4'
 #delay_sweep(0,20,21)
 #twod_sweep(915.5,917.5,5,8.5,10,11)
 #twod_sweep(912.5,914.5,5,7,12,11)
-run_test('910','910','4','6')
+run_test('910','910','4','5.45')
 #twod_sweep(910,915,10,3,6,10)
 #twod_sweep(915,915,1,10,11,1)
 #twod_sweep_tx1_only(910,915,6,10,12.5,6)
 #frequency_sweep(910,916,2)
 #frequency_sweep(915,918,18)
-#power_sweep(5,6,21)
+#power_sweep(5.4,5.6,5)
+#power_sweep(5.6,5.4,5)
 #power_sweep(8.6,9.4,15)
 #power_sweep(8.5,10.5,30)
 
