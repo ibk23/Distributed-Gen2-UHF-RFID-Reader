@@ -14,6 +14,8 @@ import rfid
 import time
 
 
+
+
 from argparse import ArgumentParser
 parser = ArgumentParser()
 parser.add_argument("-f1", "--freq1", dest="freq1", required=True,
@@ -25,12 +27,21 @@ parser.add_argument("-p1", "--pow1", dest="pow1", required=True,
 parser.add_argument("-p2", "--pow2", dest="pow2", required=True,
                     help="USRP2 power", metavar="float",type=float)
 
-parser.add_argument("-single_tx", action="store_true", dest="single_tx", 
-                    help="Only transmit on single USRP (192.168.10.2)")
+def str2bool(v):
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
+parser.add_argument("-single_tx", default=False, dest="single_tx", 
+                    help="Only transmit on single USRP (192.168.10.2)", type=str2bool)
+
 parser.add_argument("-fd", "--fake_data", dest="fake_data",default=False,
                     help="Transmit Fake data 0.5 for 0.5M DAC, 1 or 2.",type=str)
-parser.add_argument("-cw", "--cont_wave",action="store_true", dest="cont_wave",
-                    help="Transmit CW signal on tx2.")
+parser.add_argument("-cw", "--cont_wave", default=False, dest="cont_wave",
+                    help="Transmit CW signal on tx2.", type=bool)
 parser.add_argument("-d", "--delay", dest="delay_n",default=False,
                     help="Delay tx2 by n samples.", type = int)
 
