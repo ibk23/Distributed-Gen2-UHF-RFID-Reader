@@ -82,6 +82,7 @@ class reader_top_block(gr.top_block):
     self.rx_gain   = 20                  # RX Gain (gain at receiver)
     self.tx_gain_1   = float(sys.argv[3])                    # RFX900 no Tx gain option
     self.tx_gain_2   = float(sys.argv[4])                    # RFX900 no Tx gain option
+    
 
     self.usrp_address_source = "addr0=192.168.10.2, addr1=192.168.20.2,recv_frame_size=256"
     self.usrp_address_sink   = "addr0=192.168.10.2, addr1=192.168.20.2,recv_frame_size=256"
@@ -123,7 +124,7 @@ class reader_top_block(gr.top_block):
     self.to_complex      = blocks.float_to_complex()
     self.null_sink = blocks.null_sink(gr.sizeof_float*1)
     #self.delay		 = blocks.delay(gr.sizeof_gr_complex*1, 0)
-    self.const_1 = analog.sig_source_c(0, analog.GR_CONST_WAVE, 0, 0, 1)
+    self.const_1 = analog.sig_source_c(0, analog.GR_CONST_WAVE, 0, 0, .04)
     
     if (DEBUG == False) : # Real Time Execution
 

@@ -4,7 +4,7 @@ import tempfile
 import re 
 import csv
 import numpy as np
-import epc_finder_gate
+import epc_finder_filter
 
 #delete csv file
 
@@ -16,7 +16,7 @@ power_1='8'
 power_2='3'
 no_repeats=1
 delay='0'
-SINGLE_USRP=False
+SINGLE_USRP=True
 
 #Ensure this is set in reader*.py as well. 
 TX_FAKE_DATA = True
@@ -57,7 +57,7 @@ def power_sweep(start, fin, no_steps):
     print("Running test with params",freq_1,freq_2,power_1)
     for power_2 in np.linspace(start, fin, no_steps):
         power_2=str(power_2)
-        print("power_2 is %s"%power_2)
+        #print("power_2 is %s"%power_2)
         run_test(freq_1,freq_2,power_1,power_2)
 
 def twod_sweep(start_f,end_f,steps_f,start_p,end_p,steps_p):
@@ -102,7 +102,7 @@ def run_test(freq_1,freq_2,power_1,power_2):
                                      freq_1, freq_2,power_1, power_2, delay], stdout=tempf)
             else:
               proc = subprocess.Popen(['sudo', 'GR_SCHEDULER=STS', 'nice', '-n', '-20', 
-                                     'python', 'reader12_automatable.py', 
+                                     'python', 'CW_reader.py', 
                                      freq_1, freq_2,power_1, power_2, delay], stdout=tempf)
             proc.wait()
             if not TX_FAKE_DATA:
@@ -116,10 +116,10 @@ def run_test(freq_1,freq_2,power_1,power_2):
                     attempts.append("")
                     successes.append("")
             try:
-                no_rn16s = epc_finder_gate.count()                
+                no_rn16s = epc_finder_filter.count()
                 rn16_plus_epc.append(no_rn16s)
-                if 2<no_rn16s<198:
-                    epc_finder_gate.count(plot=True)
+                #if 2<no_rn16s<198:
+                #    epc_finder_filter.count(plot=True)
                   
             except Exception as e: 
                 print(e)
@@ -133,19 +133,19 @@ def run_test(freq_1,freq_2,power_1,power_2):
 
 delay='0'
 
-power_1='9'
+power_1='8'
 power_2='3'
-twod_power_sweep(0,3,4,10,11,6)
+twod_power_sweep(8,14,7,0,0,1)
 #delay_sweep(0,20,21)
 #twod_sweep(915.5,917.5,5,8.5,10,11)
 #twod_sweep(912.5,914.5,5,7,12,11)
-#run_test('910','912','11','0')
+#run_test('910','912','9','-100')
 #twod_sweep(910,915,10,3,6,10)
 #twod_sweep(915,915,1,10,11,1)
 #twod_sweep_tx1_only(910,915,6,10,12.5,6)
 #frequency_sweep(910,916,2)
 #frequency_sweep(915,918,18)
-#power_sweep(6,10,5)
+#power_sweep(4,8,5)
 #power_sweep(5.6,5.4,5)
 #power_sweep(8.6,9.4,15)
 #power_sweep(8.5,10.5,30)

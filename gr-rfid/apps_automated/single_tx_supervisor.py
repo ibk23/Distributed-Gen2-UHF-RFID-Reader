@@ -65,8 +65,9 @@ def run_test_tx1_only(freq_1,freq_2,power_1,power_2):
             writer = csv.writer(csvfile)
             writer.writerow([freq_1, freq_2, power_1, power_2]+[suc for suc in successes]+[at for at in attempts])
 
-#power_sweep_tx1_only(10,14.9,6)
-twod_sweep_tx1_only(910,915,11,9,12.5,9)
+
+power_sweep_tx1_only(8,14,7)
+#twod_sweep_tx1_only(910,915,11,9,12.5,9)
 #run_test('910','910','7','7')
 #twod_sweep(910,915,10,3,6,10)
 #twod_sweep(910,915,5,6,10,5)
