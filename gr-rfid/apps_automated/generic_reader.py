@@ -67,6 +67,9 @@ if args.delay_n:
 if (not args.cont_wave and args.delay_n):
   print("Delaying one transmitter by %i samples"%args.delay_n)
 
+if args.single_tx and args.cont_wave:
+    print("Not allowed both CW and single_tx. Disabling CW")
+    args.cont_wave=False
 
 class reader_top_block(gr.top_block):
 

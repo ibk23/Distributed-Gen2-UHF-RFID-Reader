@@ -133,12 +133,12 @@ arguments = {'-f1':'910',
             '-f2':'910', 
             '-p1':'9', 
             '-p2':'9',
-            '-single_tx':'False', 
+            '-single_tx':'True', 
             '-fd':'2', 
             '-cw':'True', 
             '-d':'0'}
 
-
+power_sweep_tx1_only(5,10,6)
 #twod_power_sweep(8,14,7,0,0,1)
 #delay_sweep(0,20,21)
 #twod_sweep(915.5,917.5,5,8.5,10,11)
@@ -149,7 +149,7 @@ arguments = {'-f1':'910',
 #twod_sweep_tx1_only(910,915,6,10,12.5,6)
 #frequency_sweep(910,916,2)
 #frequency_sweep(915,918,18)
-power_sweep(4,8,5)
+#power_sweep(4,8,5)
 #power_sweep(5.6,5.4,5)
 #power_sweep(8.6,9.4,15)
 #power_sweep(8.5,10.5,30)
