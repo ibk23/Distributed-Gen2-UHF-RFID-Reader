@@ -28,18 +28,23 @@ parser.add_argument("-p2", "--pow2", dest="pow2", required=True,
                     help="USRP2 power", metavar="float",type=float)
 
 def str2bool(v):
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
+  if v.lower() in ('yes', 'true', 't', 'y', '1'):
+      return True
+  elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+      return False
+  else:
+      raise argparse.ArgumentTypeError('Boolean value expected.')
 
 parser.add_argument("-single_tx", default=False, dest="single_tx", 
                     help="Only transmit on single USRP (192.168.10.2)", type=str2bool)
+def false2bool(v):
+  if v.lower() in ('no', 'false', 'f', 'n', '0'):
+    return False
+  else:
+    return v
 
 parser.add_argument("-fd", "--fake_data", dest="fake_data",default=False,
-                    help="Transmit Fake data 0.5 for 0.5M DAC, 1 or 2.",type=str)
+                    help="Transmit Fake data 0.5 for 0.5M DAC, 1 or 2.",type=false2bool)
 parser.add_argument("-cw", "--cont_wave", default=False, dest="cont_wave",
                     help="Transmit CW signal on tx2.", type=bool)
 parser.add_argument("-d", "--delay", dest="delay_n",default=False,
@@ -165,7 +170,8 @@ class reader_top_block(gr.top_block):
     #self.low_pass  = filter.fir_filter_ccc(self.decim, self.num_taps);
     self.low_pass = filter.fir_filter_ccf(self.decim, firdes.low_pass(
         	1, self.adc_rate, 200000, 100000, firdes.WIN_HAMMING, 6.76))
-    #self.low_pass = filter.fir_filter_ccf(5, firdes.low_pass(1, self.adc_rate, 50000, 50000, firdes.WIN_HAMMING, 6.76))
+    #self.low_pass = filter.fir_filter_ccf(5, firdes.low_pass(1, self.adc_rate, 
+            #50000, 50000, firdes.WIN_HAMMING, 6.76))
     self.gate = rfid.gate(int(self.adc_rate/self.decim))
     self.tag_decoder = rfid.tag_decoder(int(self.adc_rate/self.decim))
     if args.fake_data=='0.5':
@@ -206,6 +212,7 @@ class reader_top_block(gr.top_block):
     self.connect(self.gate, self.tag_decoder)
 
     if args.fake_data:
+      print("Args.fake_data is ",args.fake_data)
       self.connect((self.tag_decoder,0),self.null_sink) #No longer need this data
     else:
       self.connect((self.tag_decoder,0), self.reader)
