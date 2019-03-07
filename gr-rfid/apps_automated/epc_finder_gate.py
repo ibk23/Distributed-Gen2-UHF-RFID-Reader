@@ -1,3 +1,4 @@
+from __future__ import print_function
 import scipy
 from scipy.signal import argrelextrema
 import matplotlib.pyplot as plt
@@ -7,13 +8,17 @@ from os import getcwd
 # relative_path_to_file = '../data/Corilateme/source'
 relative_path_to_file = '../misc/data/gate'
 
+Verbose=False
+
 adc_rate = (2 * 10 ** 6)
 decim = 5  # decimation of matched filter
 samp_rate =  adc_rate/ decim  # Samples per second
-print("Sample rate is %i = %i/%i = ADC Rate/Decim"% (samp_rate,adc_rate,decim))
+if Verbose:
+    print("Sample rate is %i = %i/%i = ADC Rate/Decim"% (samp_rate,adc_rate,decim))
 
 half_symbol_length = int(round(12.5 * 10 ** -6 * samp_rate))
-print("Half symbol length is %i"% half_symbol_length)
+if Verbose:
+    print("Half symbol length is %i"% half_symbol_length)
 
 # Reduce computation by specifying a range to look at
 first_sample = 0
@@ -126,7 +131,7 @@ def count_rn16s_gate(numpyarray,plot=False):
     #unrounded_correlated = np.correlate(norm_numpyarray - np.mean(norm_numpyarray), sampled_signal)
 
 
-    print("Highest peak is %2.3f"%np.amax(correlated))
+    print("Highest peak is %2.3f: "%np.amax(correlated),end='')
     #peaks, _ = find_peaks(x, height=27)
     #peak_locations = np.take(a, argrelextrema(norm_correlated[a], np.greater)[0])
 
@@ -155,13 +160,14 @@ def count_rn16s_gate(numpyarray,plot=False):
         y =  [norm_correlated[x] for x in filtered_peak_locations]
         plt.plot(filtered_peak_locations,y,'rs')
 
-    print("Number of RN16 peaks is %i"%len(filtered_peak_locations))
+    print("Number of RN16 peaks is %i"%len(filtered_peak_locations),end='')
     return len(filtered_peak_locations)
 
 def count(plot=False): #Use plot to allow calling from other (supervisor) functions
     # File operations
     f = scipy.fromfile(open(getcwd() + '/' + relative_path_to_file), dtype=scipy.float32)
-    print("Number of datapoints is: %i"% f.size)
+    if Verbose:
+        print("Number of datapoints is: %i"% f.size)
 
     #f = f[first_sample:last_sample]
     abs_f = abs(f[0::2] + 1j * f[1::2])

@@ -67,6 +67,7 @@ def twod_sweep_tx1_only(start_f,end_f,steps_f,start_p,end_p,steps_p):
 
 
 def run_test():
+    print('\n')
     pprint(arguments)
     attempts=[]
     successes=[]
@@ -86,7 +87,7 @@ def run_test():
                 arglist+=[key+'='+value]
             command = ['sudo', 'GR_SCHEDULER=STS', 'nice', '-n', '-20', 
                        'python', 'generic_reader.py']+arglist
-            print("Arguments are",command)
+
             proc = subprocess.Popen(command, stdout=tempf)
             proc.wait()
             if not RN16s_only:
@@ -123,10 +124,10 @@ def run_test():
 
 
 RN16s_only = True
-no_repeats=1
+no_repeats=3
 add_file_headers()
 
-EPC_FINDER_METHOD="GATE" # "FILTER" or "GATE"
+EPC_FINDER_METHOD="FILTER" # "FILTER" or "GATE"
 
 arguments = {'-f1':'910', 
             '-f2':'910', 
@@ -134,7 +135,7 @@ arguments = {'-f1':'910',
             '-p2':'9',
             '-single_tx':'False', 
             '-fd':'2', 
-            '-cw':'False', 
+            '-cw':'True', 
             '-d':'0'}
 
 
@@ -142,13 +143,13 @@ arguments = {'-f1':'910',
 #delay_sweep(0,20,21)
 #twod_sweep(915.5,917.5,5,8.5,10,11)
 #twod_sweep(912.5,914.5,5,7,12,11)
-run_test()
+#run_test()
 #twod_sweep(910,915,10,3,6,10)
 #twod_sweep(915,915,1,10,11,1)
 #twod_sweep_tx1_only(910,915,6,10,12.5,6)
 #frequency_sweep(910,916,2)
 #frequency_sweep(915,918,18)
-#power_sweep(4,8,5)
+power_sweep(4,8,5)
 #power_sweep(5.6,5.4,5)
 #power_sweep(8.6,9.4,15)
 #power_sweep(8.5,10.5,30)
