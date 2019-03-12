@@ -46,7 +46,7 @@ def false2bool(v):
 parser.add_argument("-fd", "--fake_data", dest="fake_data",default=False,
                     help="Transmit Fake data 0.5 for 0.5M DAC, 1 or 2.",type=false2bool)
 parser.add_argument("-cw", "--cont_wave", default=False, dest="cont_wave",
-                    help="Transmit CW signal on tx2.", type=bool)
+                    help="Transmit CW signal on tx2.", type=str2bool)
 parser.add_argument("-d", "--delay", dest="delay_n",default=False,
                     help="Delay tx2 by n samples.", type = int)
 

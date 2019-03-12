@@ -124,26 +124,26 @@ def run_test():
 
 
 RN16s_only = True
-no_repeats=3
+no_repeats=1
 add_file_headers()
 
 EPC_FINDER_METHOD="FILTER" # "FILTER" or "GATE"
 
 arguments = {'-f1':'910', 
             '-f2':'910', 
-            '-p1':'9', 
-            '-p2':'9',
-            '-single_tx':'True', 
+            '-p1':'8', 
+            '-p2':'8',
+            '-single_tx':'False', 
             '-fd':'2', 
-            '-cw':'True', 
+            '-cw':'False', 
             '-d':'0'}
 
-power_sweep_tx1_only(5,10,6)
-#twod_power_sweep(8,14,7,0,0,1)
+#power_sweep_tx1_only(10,12,21)
+#twod_power_sweep(7,14,8,0,14,15)
 #delay_sweep(0,20,21)
 #twod_sweep(915.5,917.5,5,8.5,10,11)
 #twod_sweep(912.5,914.5,5,7,12,11)
-#run_test()
+run_test()
 #twod_sweep(910,915,10,3,6,10)
 #twod_sweep(915,915,1,10,11,1)
 #twod_sweep_tx1_only(910,915,6,10,12.5,6)
