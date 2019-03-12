@@ -47,10 +47,8 @@ def power_sweep(start, fin, no_steps):
         run_test()
 
 def twod_sweep(start_f,end_f,steps_f,start_p,end_p,steps_p):
-    global freq_2
     for freq_2 in np.linspace(start_f, end_f, steps_f):
-        freq_2=str(freq_2)
-        print("freq_2 is ",freq_2)
+        arguments['-f2'] =str(freq_2)
         power_sweep(start_p, end_p, steps_p)
 
 def power_sweep_tx1_only(start, fin, no_steps):
@@ -130,7 +128,7 @@ add_file_headers()
 EPC_FINDER_METHOD="FILTER" # "FILTER" or "GATE"
 
 arguments = {'-f1':'910', 
-            '-f2':'910', 
+            '-f2':'911', 
             '-p1':'8', 
             '-p2':'8',
             '-single_tx':'False', 
@@ -141,9 +139,9 @@ arguments = {'-f1':'910',
 #power_sweep_tx1_only(10,12,21)
 #twod_power_sweep(7,14,8,0,14,15)
 #delay_sweep(0,20,21)
-#twod_sweep(915.5,917.5,5,8.5,10,11)
+twod_sweep(910.5,915,10,6,11,11)
 #twod_sweep(912.5,914.5,5,7,12,11)
-run_test()
+#run_test()
 #twod_sweep(910,915,10,3,6,10)
 #twod_sweep(915,915,1,10,11,1)
 #twod_sweep_tx1_only(910,915,6,10,12.5,6)
