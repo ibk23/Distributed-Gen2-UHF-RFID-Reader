@@ -14,6 +14,8 @@ The project was initially based on the RFID Gen2 Reader available at https://git
 
 - install log4cpp (http://log4cpp.sourceforge.net/)
 - install UHD driver + GNU Radio using **wget http://www.sbrac.org/files/build-gnuradio && chmod a+x ./build-gnuradio && ./build-gnuradio**
+    To do this also add either Ubuntu 18 to supported list in bash script, and cherry pick GNURadio commit 00c6f25.
+    On Ubuntu 16 you need to sync up gcc and cmake versions to avoid error.
 - cd Gen2-UHF-RFID-Reader/gr-rfid/  
 - mkdir build  
 - cd build/  
