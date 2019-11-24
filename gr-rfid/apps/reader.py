@@ -96,7 +96,7 @@ class reader_top_block(gr.top_block):
       self.connect(self.to_complex, self.sink)
 
       #File sinks for logging (Remove comments to log data)
-      #self.connect(self.source, self.file_sink_source)
+      self.connect(self.source, self.file_sink_source)
 
     else :  # Offline Data
       self.file_source               = blocks.file_source(gr.sizeof_gr_complex*1, "../misc/data/file_source_test",False)   ## instead of uhd.usrp_source
@@ -112,10 +112,10 @@ class reader_top_block(gr.top_block):
       self.connect(self.to_complex, self.file_sink)
     
     #File sinks for logging 
-    #self.connect(self.gate, self.file_sink_gate)
+    self.connect(self.gate, self.file_sink_gate)
     self.connect((self.tag_decoder,1), self.file_sink_decoder) # (Do not comment this line)
-    #self.connect(self.file_sink_reader, self.file_sink_reader)
-    #self.connect(self.matched_filter, self.file_sink_matched_filter)
+    self.connect(self.reader, self.file_sink_reader)
+    self.connect(self.matched_filter, self.file_sink_matched_filter)
 
 if __name__ == '__main__':
 

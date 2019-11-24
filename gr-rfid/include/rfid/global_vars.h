@@ -113,7 +113,7 @@ namespace gr {
     const int EPC_D          = (EPC_BITS  + TAG_PREAMBLE_BITS) * TAG_BIT_D;
     // Query command 
     const int QUERY_CODE[4] = {1,0,0,0};
-    const int M[2]          = {0,0};
+    const int M[2]          = {0,1};
     const int SEL[2]         = {0,0};
     const int SESSION[2]     = {0,0};
     const int TARGET         = 0;
