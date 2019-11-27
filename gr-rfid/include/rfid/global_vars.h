@@ -117,7 +117,7 @@ namespace gr {
     const int SEL[2]         = {0,0};
     const int SESSION[2]     = {0,0};
     const int TARGET         = 0;
-    const int TREXT         = 0;
+    const int TREXT         = 1;
     const int DR            = 0;
 
 
