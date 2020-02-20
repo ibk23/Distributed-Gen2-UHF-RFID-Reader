@@ -4,12 +4,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from os import getcwd
 
-relative_path_to_file = '../misc/data/reader'
+relative_path_to_file = '../misc/data/gate'
 decim = 5  # decimation of matched filter
 
 
 f = scipy.fromfile(open(getcwd() + '/' + relative_path_to_file), dtype=scipy.float32)
-
+if (len(f)%2)==1:
+	f = f[0:-1]
 abs_f = abs(f[0::2] + 1j * f[1::2])
 abs_f = abs_f / np.amax(abs_f)
 # Matched filter to reduce hf noise
