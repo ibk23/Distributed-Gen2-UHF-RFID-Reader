@@ -111,6 +111,7 @@ namespace gr {
 
 
 
+
     std::vector<float>  tag_decoder_impl::tag_detection_RN16(std::vector<gr_complex> & RN16_samples_complex)
     {
       // detection + differential decoder (since Tag uses FM0)
@@ -141,6 +142,52 @@ namespace gr {
       return tag_bits;
     }
 
+    std::vector<float>  tag_decoder_impl::tag_detection_miller_RN16(std::vector<gr_complex> & RN16_samples_complex)
+    {
+      // detection + differential decoder (since Tag uses Miller now)
+      std::vector<float> tag_bits,dist;
+      std::complex<float> r1, r2;
+      int index_T=0;
+      
+      for (int j = 0; j < RN16_samples_complex.size()/4 ; j ++ )
+      {
+        r1 = RN16_samples_complex[4*j] - RN16_samples_complex[4*j+1] + RN16_samples_complex[4*j+2] - RN16_samples_complex[4*j+3];
+        r2 = RN16_samples_complex[4*j] - RN16_samples_complex[4*j+1] - RN16_samples_complex[4*j+2] + RN16_samples_complex[4*j+3];
+
+        std::complex<float> dhc = std::conj(h_est) * (std::complex<float>)2;
+	
+        bool a1 = pow(std::abs(r1 - dhc),2) <= pow(std::abs(r1 + dhc),2);
+        bool a2 = pow(std::abs(r1 - dhc),2) + pow(std::abs(r2), 2) <= pow(std::abs(r2 - dhc),2) + pow(std::abs(r1), 2);
+        bool a3 = pow(std::abs(r1 - dhc),2) + pow(std::abs(r2), 2) <= pow(std::abs(r2 + dhc),2) + pow(std::abs(r1), 2);
+
+        bool b1 = pow(std::abs(r1 + dhc),2) <= pow(std::abs(r1 - dhc),2);
+        bool b2 = pow(std::abs(r1 + dhc),2) + pow(std::abs(r2), 2) <= pow(std::abs(r2 - dhc),2) + pow(std::abs(r1), 2);
+        bool b3 = pow(std::abs(r1 + dhc),2) + pow(std::abs(r2), 2) <= pow(std::abs(r2 + dhc),2) + pow(std::abs(r1), 2);
+		
+        bool c1 = pow(std::abs(r2 - dhc),2) <= pow(std::abs(r2 + dhc),2);
+        bool c2 = pow(std::abs(r2 - dhc),2) + pow(std::abs(r1), 2) <= pow(std::abs(r1 - dhc),2) + pow(std::abs(r2), 2);
+        bool c3 = pow(std::abs(r2 - dhc),2) + pow(std::abs(r1), 2) <= pow(std::abs(r1 + dhc),2) + pow(std::abs(r2), 2);
+	
+        bool d1 = pow(std::abs(r2 + dhc),2) <= pow(std::abs(r2 - dhc),2);
+        bool d2 = pow(std::abs(r2 + dhc),2) + pow(std::abs(r1), 2) <= pow(std::abs(r1 - dhc),2) + pow(std::abs(r2), 2);
+        bool d3 = pow(std::abs(r2 + dhc),2) + pow(std::abs(r1), 2) <= pow(std::abs(r1 + dhc),2) + pow(std::abs(r2), 2);
+        if ((d1&&d2&&d3)||(c1&&c2&&c3))
+		{
+          tag_bits.push_back(1);     
+        }
+        else if((b1&&b2&&b3)||(a1&&a2&&a3))
+        { 
+          tag_bits.push_back(0);          
+        }
+	    else
+	    {
+	      tag_bits.push_back(-1);
+		}
+      }
+      for (std::vector<float>::const_iterator i = tag_bits.begin(); i != tag_bits.end(); ++i)
+            std::cout << *i << ' ';
+      return tag_bits;
+    }
 
     std::vector<float>  tag_decoder_impl::tag_detection_EPC(std::vector<gr_complex> & EPC_samples_complex, int index)
     {
@@ -216,7 +263,7 @@ namespace gr {
       std::vector<gr_complex> EPC_samples_complex;
 
       std::vector<float> RN16_bits;
-      int number_of_half_bits = 0;
+      int number_of_quart_bits = 0;
 
       std::vector<float> EPC_bits;    
       // Processing only after n_samples_to_ungate are available and we need to decode an RN16
@@ -236,14 +283,14 @@ namespace gr {
 
         for (float j = RN16_index; j < ninput_items[0]; j += n_samples_TAG_BIT/2 )
         {
-          number_of_half_bits++;
+          number_of_quart_bits++;
           int k = round(j);
           RN16_samples_complex.push_back(in[k]);
 
           //out_2[written_sync] = in[j];
            //written_sync ++;
 
-          if (number_of_half_bits == 2*(RN16_BITS-1))
+          if (number_of_quart_bits == 4*(RN16_BITS-1))
           {
             //out_2[written_sync] = h_est;
              //written_sync ++;  
@@ -253,11 +300,10 @@ namespace gr {
         }    
 
         // RN16 bits are passed to the next block for the creation of ACK message
-        if (number_of_half_bits == 2*(RN16_BITS-1))
+        if (number_of_quart_bits == 4*(RN16_BITS-1))
         {  
-          GR_LOG_INFO(d_debug_logger, "RN16 DECODED");
-          RN16_bits  = tag_detection_RN16(RN16_samples_complex);
-
+          GR_LOG_EMERG(d_debug, "RN16 DECODED");
+          RN16_bits  = tag_detection_miller_RN16(RN16_samples_complex);
           for(int bit=0; bit<RN16_bits.size(); bit++)
           {
             out[written] =  RN16_bits[bit];

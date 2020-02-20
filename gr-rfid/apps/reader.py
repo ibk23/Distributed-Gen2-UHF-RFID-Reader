@@ -11,6 +11,7 @@ import rfid
 
 DEBUG = False
 
+
 class reader_top_block(gr.top_block):
 
   # Configure usrp source
