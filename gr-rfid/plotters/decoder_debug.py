@@ -70,14 +70,18 @@ def millergen(leng, seq):
                 y_miller[4*i+3]=-1; 
     return y_miller
 f = scipy.fromfile(open(getcwd() + relative_path_to_file), dtype=scipy.float32)
-rn16 = f[-32:-1]
-rn16 = rn16[0::2]
-f = f[0:-32]
+print (f[0] , len(f))
+print(f)
+#rn16 = f[-32:-1]
+#rn16 = rn16[0::2]
+#f = f[0:-32]
 h_e = f[-2] + 1j * f[-1] *2
-print(h_e)
+#print(h_e)
 f = f[0:-2]
 #h_en = 0.0527 - 0.0264j
 f1 = f[0::2] + 1j * f[1::2]
+f1 = f1[1::5]
+f1 = f1[41:340]
 #h_e = h_en
 #f1 = [1.0847 - 0.5083j , 4.4262 -2.1219j, 1.0842 - 0.4808j, 4.4310 - 2.1231j]
 res = []
@@ -86,7 +90,7 @@ for i in range(len(f1)//4):
     r2 = f1[4*i] - f1[4*i+1] - f1[4*i+2] +f1[4*i+3]
     r1 = r1/(200 + 0j)
     r2 = r2/(200 + 0j)
-    print(abs(r1), abs(r2))
+    #print(abs(r1), abs(r2))
     a1=abs(r1-2*h_e)**2<=abs(r1+2*h_e)**2
     a2=abs(r1-2*h_e)**2+abs(r2)**2<=abs(r1)**2+abs(r2-2*h_e)**2
     a3=abs(r1-2*h_e)**2+abs(r2)**2<=abs(r1)**2+abs(r2+2*h_e)**2
@@ -119,7 +123,7 @@ abs_f = abs_f / np.amax(abs_f)
 # Matched filter to reduce hf noise
 #abs_f = scipy.signal.correlate(abs_f, np.ones(decim), mode='same') / decim
 #plt.scatter(f[0::2],f[1::2])
-print(f[0])
+#print(f[0])
 plt.plot(abs_f)  
 plotable = [f1[0], f1[1], f1[2],f1[3]]
 #plotable = f1
@@ -130,7 +134,7 @@ pltable = [1.0847 - 0.5083j , 4.4262 -2.1219j, 1.0842 - 0.4808j, 4.4310 - 2.1231
 #print(plotable)
 #plt.plot(millergen(16, [1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1]))
 plt.plot(millergen(len(res),res))
-plt.plot(millergen(len(rn16),rn16))
+#plt.plot(millergen(len(rn16),rn16))
 
 X = [x.real for x in plotable]
 Y = [y.imag for y in plotable]

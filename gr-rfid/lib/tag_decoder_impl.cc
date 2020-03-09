@@ -183,6 +183,7 @@ namespace gr {
         }
 	    else
 	    {
+        /*Error*/
 	      tag_bits.push_back(-1);
 		}
       }
@@ -240,6 +241,82 @@ namespace gr {
     }
 
 
+
+    std::vector<float> tag_decoder_impl::tag_detection_miller_EPC(std::vector<gr_complex> & EPC_samples_complex, int index)
+    {      
+      std::vector<float> tag_bits,dist;
+      float result=0;
+      int prev = 1;
+      std::complex<float> r1, r2;
+      
+      int number_steps = n_samples_TAG_BIT * (float)0.065 / (float)0.01;
+      float min_val = n_samples_TAG_BIT/4.0 -  n_samples_TAG_BIT/4.0*0.065, max_val = n_samples_TAG_BIT/4.0 +  n_samples_TAG_BIT/4.0*0.065;
+
+      std::vector<float> energy;
+
+      energy.resize(number_steps);
+      for (int t = 0; t <number_steps; t++)
+      {  
+        for (int i =0; i <512; i++)
+        {
+          energy[t]+= reader_state->magn_squared_samples[(int) (i * (min_val + t*(max_val-min_val)/(number_steps-1)) + index)];
+        }
+
+      }
+      int index_T = std::distance(energy.begin(), std::max_element(energy.begin(), energy.end()));
+      float T =  min_val + index_T*(max_val-min_val)/(number_steps-1);
+
+      // T estimated
+      T_global = T;
+  
+      for (int j = 0; j < 128 ; j++ )
+      {
+        //result = std::real((EPC_samples_complex[ (int) (j*(2*T) + index) ] - EPC_samples_complex[ (int) (j*2*T + T + index) ])*std::conj(h_est) ); 
+
+
+        r1 = EPC_samples_complex[(int) ((j*4*T) + index)] - EPC_samples_complex[(int) ((4*j+1) * T + index)] + EPC_samples_complex[(int) ((4*j+2) * T + index)] - EPC_samples_complex[(int) ((4*j+3) * T + index)];
+        r2 = EPC_samples_complex[(int) ((4*j) * T + index)] - EPC_samples_complex[(int) ((4*j+1) * T + index)] - EPC_samples_complex[(int) ((4*j+2) * T + index)] + EPC_samples_complex[(int) ((4*j+3) * T + index)];
+
+        std::complex<float> dhe = h_est * (std::complex<float>)16;
+	
+        bool a1 = pow(std::abs(r1 - dhe),2) <= pow(std::abs(r1 + dhe),2);
+        bool a2 = pow(std::abs(r1 - dhe),2) + pow(std::abs(r2), 2) <= pow(std::abs(r2 - dhe),2) + pow(std::abs(r1), 2);
+        bool a3 = pow(std::abs(r1 - dhe),2) + pow(std::abs(r2), 2) <= pow(std::abs(r2 + dhe),2) + pow(std::abs(r1), 2);
+
+        bool b1 = pow(std::abs(r1 + dhe),2) <= pow(std::abs(r1 - dhe),2);
+        bool b2 = pow(std::abs(r1 + dhe),2) + pow(std::abs(r2), 2) <= pow(std::abs(r2 - dhe),2) + pow(std::abs(r1), 2);
+        bool b3 = pow(std::abs(r1 + dhe),2) + pow(std::abs(r2), 2) <= pow(std::abs(r2 + dhe),2) + pow(std::abs(r1), 2);
+		
+        bool c1 = pow(std::abs(r2 - dhe),2) <= pow(std::abs(r2 + dhe),2);
+        bool c2 = pow(std::abs(r2 - dhe),2) + pow(std::abs(r1), 2) <= pow(std::abs(r1 - dhe),2) + pow(std::abs(r2), 2);
+        bool c3 = pow(std::abs(r2 - dhe),2) + pow(std::abs(r1), 2) <= pow(std::abs(r1 + dhe),2) + pow(std::abs(r2), 2);
+	
+        bool d1 = pow(std::abs(r2 + dhe),2) <= pow(std::abs(r2 - dhe),2);
+        bool d2 = pow(std::abs(r2 + dhe),2) + pow(std::abs(r1), 2) <= pow(std::abs(r1 - dhe),2) + pow(std::abs(r2), 2);
+        bool d3 = pow(std::abs(r2 + dhe),2) + pow(std::abs(r1), 2) <= pow(std::abs(r1 + dhe),2) + pow(std::abs(r2), 2);
+
+        
+        if ((d1&&d2&&d3)||(c1&&c2&&c3))
+		{
+          tag_bits.push_back(1);
+              
+        }
+        else if((b1&&b2&&b3)||(a1&&a2&&a3))
+        { 
+          tag_bits.push_back(0);
+                    
+        }
+	    else
+	    {
+        /*Error*/
+	      tag_bits.push_back(-1);
+		}
+
+      }
+
+      return tag_bits;
+    }
+
     int
     tag_decoder_impl::general_work (int noutput_items,
                        gr_vector_int &ninput_items,
@@ -288,13 +365,13 @@ namespace gr {
           number_of_quart_bits++;
           int k = round(j);
           RN16_samples_complex.push_back(in[k]);
-          out_2[written_sync] = in[k];
-          written_sync ++;
+          //out_2[written_sync] = in[k];
+          //written_sync ++;
 
           if (number_of_quart_bits == 4*(RN16_BITS-1))
           {
-            out_2[written_sync] = h_est;
-            written_sync ++;  
+            //out_2[written_sync] = h_est;
+            //written_sync ++;  
             //produce(1,written_sync);
             break;
           }
@@ -308,12 +385,12 @@ namespace gr {
           for(int bit=0; bit<RN16_bits.size(); bit++)
           {
             out[written] =  RN16_bits[bit];
-            out_2[written_sync] = RN16_bits[bit];
-            written_sync ++;
+            //out_2[written_sync] = RN16_bits[bit];
+            //written_sync ++;
             written ++;
           }
           produce(0,written);
-          produce(1,written_sync);
+          //produce(1,written_sync);
           reader_state->gen2_logic_status = SEND_ACK;
         }
         else
@@ -353,6 +430,7 @@ namespace gr {
         }
 
         /*
+        // This is raw sample, so 200ks/s
         for (int j = 0; j < ninput_items[0] ; j ++ )
         {
           out_2[written_sync] = in[j];
@@ -361,9 +439,16 @@ namespace gr {
         produce(1,written_sync);
         */
 
-        EPC_bits   = tag_detection_EPC(EPC_samples_complex,EPC_index);
+        EPC_bits   = tag_detection_miller_EPC(EPC_samples_complex,EPC_index);
 
-        
+        for(int bit=0; bit<EPC_bits.size(); bit++)
+        {
+            out_2[written_sync] = EPC_bits[bit];
+            written_sync ++;
+        }
+        produce(1,written_sync);        
+
+
         if (EPC_bits.size() == EPC_BITS - 1)
         {
           // float to char -> use Buettner's function
