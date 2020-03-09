@@ -87,9 +87,9 @@ namespace gr {
         corr2 = gr_complex(0,0);
         corr = 0;
         // sync after matched filter (equivalent)
-        for (int j = 0; j < 2 * TAG_PREAMBLE_BITS; j ++)
+        for (int j = 0; j < 4 * TAG_PREAMBLE_BITS; j ++)
         {
-          corr2 = corr2 + in[ (int) (i+j*n_samples_TAG_BIT/2) ] * gr_complex(TAG_PREAMBLE[j],0);
+          corr2 = corr2 + in[ (int) (i+j*n_samples_TAG_BIT/4) ] * gr_complex(TAG_PREAMBLE[j],0);
         }
         corr = std::norm(corr2);
         if (corr > max)
@@ -100,11 +100,11 @@ namespace gr {
       }  
 
        // Preamble ({1,1,-1,1,-1,-1,1,-1,-1,-1,1,1} 1 2 4 7 11 12)) 
-      h_est = (in[max_index] + in[ (int) (max_index + n_samples_TAG_BIT/2) ] + in[ (int) (max_index + 3*n_samples_TAG_BIT/2) ] + in[ (int) (max_index + 6*n_samples_TAG_BIT/2)] + in[(int) (max_index + 10*n_samples_TAG_BIT/2) ] + in[ (int) (max_index + 11*n_samples_TAG_BIT/2)])/std::complex<float>(6,0);  
+      h_est = (in[max_index] + in[ (int) (max_index + n_samples_TAG_BIT/4) ] + in[ (int) (max_index + 3*n_samples_TAG_BIT/4) ] + in[ (int) (max_index + 6*n_samples_TAG_BIT/4)] + in[(int) (max_index + 10*n_samples_TAG_BIT/4) ] + in[ (int) (max_index + 11*n_samples_TAG_BIT/4)])/std::complex<float>(6,0);  
 
 
       // Shifted received waveform by n_samples_TAG_BIT/2
-      max_index = max_index + TAG_PREAMBLE_BITS * n_samples_TAG_BIT + n_samples_TAG_BIT/2; 
+      max_index = max_index + TAG_PREAMBLE_BITS * n_samples_TAG_BIT ;//+ n_samples_TAG_BIT/2; 
       return max_index;  
     }
 
@@ -144,33 +144,35 @@ namespace gr {
 
     std::vector<float>  tag_decoder_impl::tag_detection_miller_RN16(std::vector<gr_complex> & RN16_samples_complex)
     {
-      // detection + differential decoder (since Tag uses Miller now)
+      // detection + ML decoder (since Tag uses Miller now)
       std::vector<float> tag_bits,dist;
       std::complex<float> r1, r2;
       int index_T=0;
       
-      for (int j = 0; j < RN16_samples_complex.size()/4 ; j ++ )
+      for (int j = 0; j < RN16_samples_complex.size()/4 ; j++ )
       {
         r1 = RN16_samples_complex[4*j] - RN16_samples_complex[4*j+1] + RN16_samples_complex[4*j+2] - RN16_samples_complex[4*j+3];
         r2 = RN16_samples_complex[4*j] - RN16_samples_complex[4*j+1] - RN16_samples_complex[4*j+2] + RN16_samples_complex[4*j+3];
 
-        std::complex<float> dhc = std::conj(h_est) * (std::complex<float>)2;
+        std::complex<float> dhe = h_est * (std::complex<float>)16;
 	
-        bool a1 = pow(std::abs(r1 - dhc),2) <= pow(std::abs(r1 + dhc),2);
-        bool a2 = pow(std::abs(r1 - dhc),2) + pow(std::abs(r2), 2) <= pow(std::abs(r2 - dhc),2) + pow(std::abs(r1), 2);
-        bool a3 = pow(std::abs(r1 - dhc),2) + pow(std::abs(r2), 2) <= pow(std::abs(r2 + dhc),2) + pow(std::abs(r1), 2);
+        bool a1 = pow(std::abs(r1 - dhe),2) <= pow(std::abs(r1 + dhe),2);
+        bool a2 = pow(std::abs(r1 - dhe),2) + pow(std::abs(r2), 2) <= pow(std::abs(r2 - dhe),2) + pow(std::abs(r1), 2);
+        bool a3 = pow(std::abs(r1 - dhe),2) + pow(std::abs(r2), 2) <= pow(std::abs(r2 + dhe),2) + pow(std::abs(r1), 2);
 
-        bool b1 = pow(std::abs(r1 + dhc),2) <= pow(std::abs(r1 - dhc),2);
-        bool b2 = pow(std::abs(r1 + dhc),2) + pow(std::abs(r2), 2) <= pow(std::abs(r2 - dhc),2) + pow(std::abs(r1), 2);
-        bool b3 = pow(std::abs(r1 + dhc),2) + pow(std::abs(r2), 2) <= pow(std::abs(r2 + dhc),2) + pow(std::abs(r1), 2);
+        bool b1 = pow(std::abs(r1 + dhe),2) <= pow(std::abs(r1 - dhe),2);
+        bool b2 = pow(std::abs(r1 + dhe),2) + pow(std::abs(r2), 2) <= pow(std::abs(r2 - dhe),2) + pow(std::abs(r1), 2);
+        bool b3 = pow(std::abs(r1 + dhe),2) + pow(std::abs(r2), 2) <= pow(std::abs(r2 + dhe),2) + pow(std::abs(r1), 2);
 		
-        bool c1 = pow(std::abs(r2 - dhc),2) <= pow(std::abs(r2 + dhc),2);
-        bool c2 = pow(std::abs(r2 - dhc),2) + pow(std::abs(r1), 2) <= pow(std::abs(r1 - dhc),2) + pow(std::abs(r2), 2);
-        bool c3 = pow(std::abs(r2 - dhc),2) + pow(std::abs(r1), 2) <= pow(std::abs(r1 + dhc),2) + pow(std::abs(r2), 2);
+        bool c1 = pow(std::abs(r2 - dhe),2) <= pow(std::abs(r2 + dhe),2);
+        bool c2 = pow(std::abs(r2 - dhe),2) + pow(std::abs(r1), 2) <= pow(std::abs(r1 - dhe),2) + pow(std::abs(r2), 2);
+        bool c3 = pow(std::abs(r2 - dhe),2) + pow(std::abs(r1), 2) <= pow(std::abs(r1 + dhe),2) + pow(std::abs(r2), 2);
 	
-        bool d1 = pow(std::abs(r2 + dhc),2) <= pow(std::abs(r2 - dhc),2);
-        bool d2 = pow(std::abs(r2 + dhc),2) + pow(std::abs(r1), 2) <= pow(std::abs(r1 - dhc),2) + pow(std::abs(r2), 2);
-        bool d3 = pow(std::abs(r2 + dhc),2) + pow(std::abs(r1), 2) <= pow(std::abs(r1 + dhc),2) + pow(std::abs(r2), 2);
+        bool d1 = pow(std::abs(r2 + dhe),2) <= pow(std::abs(r2 - dhe),2);
+        bool d2 = pow(std::abs(r2 + dhe),2) + pow(std::abs(r1), 2) <= pow(std::abs(r1 - dhe),2) + pow(std::abs(r2), 2);
+        bool d3 = pow(std::abs(r2 + dhe),2) + pow(std::abs(r1), 2) <= pow(std::abs(r1 + dhe),2) + pow(std::abs(r2), 2);
+
+
         if ((d1&&d2&&d3)||(c1&&c2&&c3))
 		{
           tag_bits.push_back(1);     
@@ -184,8 +186,6 @@ namespace gr {
 	      tag_bits.push_back(-1);
 		}
       }
-      for (std::vector<float>::const_iterator i = tag_bits.begin(); i != tag_bits.end(); ++i)
-            std::cout << *i << ' ';
       return tag_bits;
     }
 
@@ -272,29 +272,30 @@ namespace gr {
         RN16_index = tag_sync(in,ninput_items[0]);
 
         /*
-        for (int j = 0; j < ninput_items[0]; j ++ )
+        for (int j = RN16_index; j < ninput_items[0]; j += n_samples_TAG_BIT/4  )
         {
           out_2[written_sync] = in[j];
            written_sync ++;
         }    
-        produce(1,written_sync);
+
         */
 
-
-        for (float j = RN16_index; j < ninput_items[0]; j += n_samples_TAG_BIT/2 )
+        //out_2[written_sync] = RN16_index;
+        //written_sync ++;
+        //produce(1,written_sync);
+        for (int j = RN16_index; j < ninput_items[0]; j += n_samples_TAG_BIT/4 )
         {
           number_of_quart_bits++;
           int k = round(j);
           RN16_samples_complex.push_back(in[k]);
-
-          //out_2[written_sync] = in[j];
-           //written_sync ++;
+          out_2[written_sync] = in[k];
+          written_sync ++;
 
           if (number_of_quart_bits == 4*(RN16_BITS-1))
           {
-            //out_2[written_sync] = h_est;
-             //written_sync ++;  
-            //produce(1,written_sync);        
+            out_2[written_sync] = h_est;
+            written_sync ++;  
+            //produce(1,written_sync);
             break;
           }
         }    
@@ -307,9 +308,12 @@ namespace gr {
           for(int bit=0; bit<RN16_bits.size(); bit++)
           {
             out[written] =  RN16_bits[bit];
+            out_2[written_sync] = RN16_bits[bit];
+            written_sync ++;
             written ++;
           }
           produce(0,written);
+          produce(1,written_sync);
           reader_state->gen2_logic_status = SEND_ACK;
         }
         else

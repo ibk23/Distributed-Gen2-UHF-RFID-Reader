@@ -73,7 +73,7 @@ namespace gr {
 
     // Termination criteria
     // const int MAX_INVENTORY_ROUND = 50;
-    const int MAX_NUM_QUERIES     = 10;     // Stop after MAX_NUM_QUERIES have been sent
+    const int MAX_NUM_QUERIES     = 1;     // Stop after MAX_NUM_QUERIES have been sent
 
     // valid values for Q
     const int Q_VALUE [16][4] =  
@@ -102,14 +102,14 @@ namespace gr {
 
     // Number of bits
     const int PILOT_TONE          = 12;  // Optional
-    const int TAG_PREAMBLE_BITS  = 6;   // Number of preamble bits
+    const int TAG_PREAMBLE_BITS  = 10;   // Number of preamble bits
     const int RN16_BITS          = 17;  // Dummy bit at the end
     const int EPC_BITS            = 129;  // PC + EPC + CRC16 + Dummy = 6 + 16 + 96 + 16 + 1 = 135
     const int QUERY_LENGTH        = 22;  // Query length in bits
     
     const int T_READER_FREQ = 40e3;     // BLF = 40kHz
-    const float TAG_BIT_D   = 1.0/T_READER_FREQ * pow(10,6) * 4; // Duration in us (x4 for MIller)
-    const int RN16_D        = (RN16_BITS + TAG_PREAMBLE_BITS) * TAG_BIT_D;
+    const float TAG_BIT_D   = 1.0/T_READER_FREQ * pow(10,6) * 2; // Duration in us (x2 for MIller)
+    const int RN16_D        = (RN16_BITS + TAG_PREAMBLE_BITS) * TAG_BIT_D; //
     const int EPC_D          = (EPC_BITS  + TAG_PREAMBLE_BITS) * TAG_BIT_D;
     // Query command 
     const int QUERY_CODE[4] = {1,0,0,0};
@@ -117,7 +117,7 @@ namespace gr {
     const int SEL[2]         = {0,0};
     const int SESSION[2]     = {0,0};
     const int TARGET         = 0;
-    const int TREXT         = 1;
+    const int TREXT         = 0;
     const int DR            = 0;
 
 
@@ -133,7 +133,9 @@ namespace gr {
     const int Q_UPDN[3][3]  = { {1,1,0}, {0,0,0}, {0,1,0} };
 
     // FM0 encoding preamble sequences
-    const int TAG_PREAMBLE[] = {1,1,0,1,0,0,1,0,0,0,1,1};
+    //const int TAG_PREAMBLE[] = {1,1,0,1,0,0,1,0,0,0,1,1};
+    const int TAG_PREAMBLE[] = {1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,1,0,1,0,1,0,1,1,0,1,0,0,1,0,1,1,0};
+
 
     // Gate block parameters
     const float THRESH_FRACTION = 0.75;     

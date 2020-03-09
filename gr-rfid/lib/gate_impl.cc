@@ -47,7 +47,7 @@ namespace gr {
 
        n_samples_T1       = T1_D       * (sample_rate / pow(10,6));
        n_samples_PW       = PW_D       * (sample_rate / pow(10,6));
-        n_samples_TAG_BIT = TAG_BIT_D * (sample_rate / pow(10,6));
+       n_samples_TAG_BIT  = TAG_BIT_D * (sample_rate / pow(10,6));
       
       win_length = WIN_SIZE_D * (sample_rate/ pow(10,6));
       dc_length  = DC_SIZE_D  * (sample_rate / pow(10,6));
@@ -118,7 +118,7 @@ namespace gr {
       else if (reader_state->gate_status == GATE_SEEK_RN16)
       {
         reader_state->gate_status = GATE_CLOSED;
-        reader_state->n_samples_to_ungate = (RN16_BITS + TAG_PREAMBLE_BITS) * n_samples_TAG_BIT + 2*n_samples_TAG_BIT;
+        reader_state->n_samples_to_ungate = (RN16_BITS + TAG_PREAMBLE_BITS + PILOT_TONE) * n_samples_TAG_BIT + 4*n_samples_TAG_BIT;
         n_samples = 0;
       }
       
