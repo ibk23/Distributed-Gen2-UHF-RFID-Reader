@@ -199,7 +199,8 @@ namespace gr {
       // Setup arrays
       float detect [16];
       float dist_max [4];
-      float cumul [4,16];
+      float tempd [4];
+      float cumul [4][16];
       float large = 1000; // For not allowed transition cost
 
 
@@ -211,16 +212,18 @@ namespace gr {
 
         std::complex<float> dhe = h_est * (std::complex<float>)16;
 	    //Initial setup
-        if j==0
+        if (j==0)
         {
           float ln025 = -1.38;
           dist_max[0] = ln025 + (-1 * (pow(std::abs(r1-dhe),2) + pow(std::abs(r2),2)));
           dist_max[1] = ln025 + (-1 * (pow(std::abs(r1+dhe),2) + pow(std::abs(r2),2))); 
           dist_max[2] = ln025 + (-1 * (pow(std::abs(r2+dhe),2) + pow(std::abs(r1),2))); 
           dist_max[3] = ln025 + (-1 * (pow(std::abs(r2-dhe),2) + pow(std::abs(r1),2)));
-
-          float tempd = {dist_max[0], dist_max[1], dist_max[2], dist_max[3]};
-
+          // Update tempd
+          for(int i = 0; i < 4; i++)
+          {
+            tempd[i] = dist_max[i];
+          }
           cumul[0][0] = 1;
           cumul[1][0] = 2;
           cumul[2][0] = 3;
@@ -229,14 +232,14 @@ namespace gr {
         else
         {
         //Here comes code
-          float costs_t [4];
+          float cost [4];
           float temp [4];
 
 
-          temp [0] = pow(std::abs(r1-dhe),2) + pow(std::abs(r2),2));
-          temp [1] = pow(std::abs(r1+dhe),2) + pow(std::abs(r2),2));
-          temp [2] = pow(std::abs(r2+dhe),2) + pow(std::abs(r1),2));
-          temp [3] = pow(std::abs(r2-dhe),2) + pow(std::abs(r1),2));
+          temp [0] = pow(std::abs(r1-dhe),2) + pow(std::abs(r2),2);
+          temp [1] = pow(std::abs(r1+dhe),2) + pow(std::abs(r2),2);
+          temp [2] = pow(std::abs(r2+dhe),2) + pow(std::abs(r1),2);
+          temp [3] = pow(std::abs(r2-dhe),2) + pow(std::abs(r1),2);
 
           // Costing for S1
           cost[1] = tempd[1] + temp[0];
@@ -244,32 +247,32 @@ namespace gr {
           cost[0] = (cost[1] > cost[2]) ? cost[1] - large : cost [2] - large;
           cost[3] = cost [0];
           const int sizec = sizeof(cost) / sizeof(cost[0]);
-          dist_max[0]  = std::max_element(cost, cost + sizec);
-          cumul[0, j] = std::distance(cost, std::max_element(cost, cost + sizec));
+          dist_max[0]  = *std::max_element(cost, cost + sizec);
+          cumul[0][j] = std::distance(cost, std::max_element(cost, cost + sizec));
           
           //Costing S2
           cost[0] = tempd[0] + temp[1];
           cost[3] = tempd[3] + temp[1];
           cost[1] = (cost[0] > cost[3]) ? cost[0] - large : cost [3] - large;
           cost[2] = cost [1];
-          dist_max[1]  = std::max_element(cost, cost + sizec);
-          cumul[1, j] = std::distance(cost, std::max_element(cost, cost + sizec));
+          dist_max[1]  = *std::max_element(cost, cost + sizec);
+          cumul[1][j] = std::distance(cost, std::max_element(cost, cost + sizec));
 
           //Costing S3
           cost[1] = tempd[1] + temp[2];
           cost[3] = tempd[3] + temp[2];
           cost[0] = (cost[1] > cost[3]) ? cost[1] - large : cost [3] - large;
           cost[2] = cost [0];
-          dist_max[2]  = std::max_element(cost, cost + sizec);
-          cumul[2, j] = std::distance(cost, std::max_element(cost, cost + sizec));
+          dist_max[2]  = *std::max_element(cost, cost + sizec);
+          cumul[2][j] = std::distance(cost, std::max_element(cost, cost + sizec));
 
           //Costing S4
           cost[0] = tempd[0] + temp[3];
           cost[2] = tempd[2] + temp[3];
           cost[1] = (cost[0] > cost[2]) ? cost[0] - large : cost [2] - large;
           cost[3] = cost [1];
-          dist_max[3]  = std::max_element(cost, cost + sizec);
-          cumul[3, j] = std::distance(cost, std::max_element(cost, cost + sizec));
+          dist_max[3]  = *std::max_element(cost, cost + sizec);
+          cumul[3][j] = std::distance(cost, std::max_element(cost, cost + sizec));
 
           // Update tempd
           for(int i = 0; i < 4; i++)
@@ -277,10 +280,11 @@ namespace gr {
             tempd[i] = dist_max[i];
           }
         }
+      }
 
       // Start decoding
       const int sized = sizeof(dist_max) / sizeof(dist_max[0]);
-      max_ind = std::distance(dist_max, std::max_element(dist_max, dist_max + sized));
+      int max_ind = std::distance(dist_max, std::max_element(dist_max, dist_max + sized));
       if(max_ind == 0 || max_ind == 1)
       {
         detect[15] = 0;
@@ -302,7 +306,7 @@ namespace gr {
         max_ind = cumul[max_ind][i];
 
       }
-      std::vector<float> tag_bits(detect, detect + (sizeof(detect)/sizeof(detect[0]));
+      std::vector<float> tag_bits(detect, detect + (sizeof(detect)/sizeof(detect[0])));
       return tag_bits;
     }
 
@@ -500,15 +504,18 @@ namespace gr {
         {  
           GR_LOG_EMERG(d_debug, "RN16 DECODED");
           RN16_bits  = tag_detection_viterbi_RN16(RN16_samples_complex);
+	  std::vector<float>RN16_bitv = tag_detection_miller_RN16(RN16_samples_complex);
           for(int bit=0; bit<RN16_bits.size(); bit++)
           {
             out[written] =  RN16_bits[bit];
-            //out_2[written_sync] = RN16_bits[bit];
-            //written_sync ++;
+            out_2[written_sync] = RN16_bits[bit];
+            written_sync ++;
+	    out_2[written_sync] = RN16_bitv[bit];
+	    written_sync ++;
             written ++;
           }
           produce(0,written);
-          //produce(1,written_sync);
+          produce(1,written_sync);
           reader_state->gen2_logic_status = SEND_ACK;
         }
         else
