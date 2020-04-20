@@ -23,6 +23,7 @@
 
 #include <rfid/tag_decoder.h>
 #include <vector>
+#include <algorithm>
 #include "rfid/global_vars.h"
 #include <time.h>
 #include <numeric>
@@ -44,6 +45,7 @@ namespace rfid {
       std::vector<float> tag_detection_EPC(std::vector<gr_complex> &EPC_samples_complex, int index);
       std::vector<float> tag_detection_RN16(std::vector<gr_complex> &RN16_samples_complex);  
       std::vector<float> tag_detection_miller_RN16(std::vector<gr_complex> &RN16_samples_complex); 
+      std::vector<float> tag_detection_viterbi_RN16(std::vector<gr_complex> &RN16_samples_complex);
       std::vector<float> tag_detection_miller_EPC(std::vector<gr_complex> &EPC_samples_complex, int index);
       int tag_sync(const gr_complex * in, int size);
        int check_crc(char * bits, int num_bits);
