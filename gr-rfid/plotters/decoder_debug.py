@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import scipy
 from scipy.signal import argrelextrema
 import matplotlib.pyplot as plt
@@ -70,12 +72,14 @@ def millergen(leng, seq):
                 y_miller[4*i+3]=-1; 
     return y_miller
 f = scipy.fromfile(open(getcwd() + relative_path_to_file), dtype=scipy.float32)
-print (f[0] , len(f))
-print(f)
+#print (f[0] , len(f))
+
+for i in range(len(f)//2):
+    print(f[2*i], f[2*i+1])
 #rn16 = f[-32:-1]
 #rn16 = rn16[0::2]
 #f = f[0:-32]
-h_e = f[-2] + 1j * f[-1] *2
+'''h_e = f[-2] + 1j * f[-1] *2
 #print(h_e)
 f = f[0:-2]
 #h_en = 0.0527 - 0.0264j
@@ -117,14 +121,14 @@ for i in range(len(f1)//4):
     else:
         res.append(-1)
 
-print(res)
+#print(res)
 abs_f = abs(f1)
 abs_f = abs_f / np.amax(abs_f)
 # Matched filter to reduce hf noise
 #abs_f = scipy.signal.correlate(abs_f, np.ones(decim), mode='same') / decim
 #plt.scatter(f[0::2],f[1::2])
 #print(f[0])
-plt.plot(abs_f)  
+#plt.plot(abs_f)  
 plotable = [f1[0], f1[1], f1[2],f1[3]]
 #plotable = f1
 #plotable = [i-h_e for i in plotable] 
@@ -133,7 +137,7 @@ pltable = [1.0847 - 0.5083j , 4.4262 -2.1219j, 1.0842 - 0.4808j, 4.4310 - 2.1231
 # pltable = [i-h_en for i in pltable] 
 #print(plotable)
 #plt.plot(millergen(16, [1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1]))
-plt.plot(millergen(len(res),res))
+#plt.plot(millergen(len(res),res))
 #plt.plot(millergen(len(rn16),rn16))
 
 X = [x.real for x in plotable]
@@ -142,5 +146,5 @@ Y = [y.imag for y in plotable]
 #X = [x.real for x in pltable]
 #Y = [y.imag for y in pltable]
 #plt.scatter(X,Y)
-plt.show();
+plt.show();'''
 
