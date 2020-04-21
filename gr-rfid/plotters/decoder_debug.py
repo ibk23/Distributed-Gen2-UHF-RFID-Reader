@@ -72,11 +72,7 @@ def millergen(leng, seq):
                 y_miller[4*i+3]=-1; 
     return y_miller
 f = scipy.fromfile(open(getcwd() + relative_path_to_file), dtype=scipy.float32)
-<<<<<<< HEAD
 #print (f[0] , len(f))
-=======
-print (f[0] , len(f))
->>>>>>> e1feed74f47381293c8c87c1806d70ca39dabe1f
 
 for i in range(len(f)//2):
     print(f[2*i], f[2*i+1])

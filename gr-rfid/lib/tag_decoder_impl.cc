@@ -194,7 +194,7 @@ namespace gr {
     {
       // detection + ML decoder (since Tag uses Miller now)
       std::vector<float> dist;
-      std::complex<float> r0, r2;
+      std::complex<float> r1, r2;
       int index_T=0;
       // Setup arrays
       float detect [16];
@@ -215,17 +215,10 @@ namespace gr {
         if (j==0)
         {
           float ln025 = -1.38;
-<<<<<<< HEAD
           dist_max[0] = (-1 * (pow(std::abs(r1-dhe),2) + pow(std::abs(r2),2)));
           dist_max[1] = (-1 * (pow(std::abs(r1+dhe),2) + pow(std::abs(r2),2))); 
           dist_max[2] = (-1 * (pow(std::abs(r2+dhe),2) + pow(std::abs(r1),2))); 
           dist_max[3] = (-1 * (pow(std::abs(r2-dhe),2) + pow(std::abs(r1),2)));
-=======
-          dist_max[0] = ln025 + (-1 * (pow(std::abs(r1-dhe),2) + pow(std::abs(r2),2)));
-          dist_max[1] = ln025 + (-1 * (pow(std::abs(r1+dhe),2) + pow(std::abs(r2),2))); 
-          dist_max[2] = ln025 + (-1 * (pow(std::abs(r2+dhe),2) + pow(std::abs(r1),2))); 
-          dist_max[3] = ln025 + (-1 * (pow(std::abs(r2-dhe),2) + pow(std::abs(r1),2)));
->>>>>>> e1feed74f47381293c8c87c1806d70ca39dabe1f
           // Update tempd
           for(int i = 0; i < 4; i++)
           {
@@ -243,17 +236,10 @@ namespace gr {
           float temp [4];
 
 
-<<<<<<< HEAD
           temp [0] = -1*pow(std::abs(r1-dhe),2) + pow(std::abs(r2),2);
           temp [1] = -1*pow(std::abs(r1+dhe),2) + pow(std::abs(r2),2);
           temp [2] = -1*pow(std::abs(r2+dhe),2) + pow(std::abs(r1),2);
           temp [3] = -1*pow(std::abs(r2-dhe),2) + pow(std::abs(r1),2);
-=======
-          temp [0] = pow(std::abs(r1-dhe),2) + pow(std::abs(r2),2);
-          temp [1] = pow(std::abs(r1+dhe),2) + pow(std::abs(r2),2);
-          temp [2] = pow(std::abs(r2+dhe),2) + pow(std::abs(r1),2);
-          temp [3] = pow(std::abs(r2-dhe),2) + pow(std::abs(r1),2);
->>>>>>> e1feed74f47381293c8c87c1806d70ca39dabe1f
 
           // Costing for S1
           cost[1] = tempd[1] + temp[0];
@@ -323,10 +309,7 @@ namespace gr {
 
       }
       std::vector<float> tag_bits(detect, detect + (sizeof(detect)/sizeof(detect[0])));
-<<<<<<< HEAD
 
-=======
->>>>>>> e1feed74f47381293c8c87c1806d70ca39dabe1f
       return tag_bits;
     }
 
@@ -670,23 +653,16 @@ std::vector<float> tag_decoder_impl::tag_detection_viterbi_EPC(std::vector<gr_co
         if (number_of_quart_bits == 4*(RN16_BITS-1))
         {  
           GR_LOG_EMERG(d_debug, "RN16 DECODED");
-<<<<<<< HEAD
 	        RN16_bits = tag_detection_viterbi_RN16(RN16_samples_complex);
-=======
-          RN16_bits  = tag_detection_viterbi_RN16(RN16_samples_complex);
-	  std::vector<float>RN16_bitv = tag_detection_miller_RN16(RN16_samples_complex);
->>>>>>> e1feed74f47381293c8c87c1806d70ca39dabe1f
           for(int bit=0; bit<RN16_bits.size(); bit++)
           {
             out[written] =  RN16_bits[bit];
-            out_2[written_sync] = RN16_bits[bit];
-            written_sync ++;
-	    out_2[written_sync] = RN16_bitv[bit];
-	    written_sync ++;
+            //out_2[written_sync] = RN16_bits[bit];
+            //written_sync ++;
             written ++;
           }
           produce(0,written);
-          produce(1,written_sync);
+          //produce(1,written_sync);
           reader_state->gen2_logic_status = SEND_ACK;
         }
         else
