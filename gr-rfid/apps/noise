@@ -1,0 +1,4 @@
+#! /bin/bash
+python3 ../plotters/noise.py
+sudo GR_SCHEDULER=STS python ./reader.py
+

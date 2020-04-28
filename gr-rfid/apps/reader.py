@@ -9,8 +9,7 @@ from gnuradio import digital
 from gnuradio import qtgui
 import rfid
 
-DEBUG = False
-
+DEBUG = True
 
 class reader_top_block(gr.top_block):
 
@@ -53,7 +52,7 @@ class reader_top_block(gr.top_block):
     self.dac_rate = 1e6                 # DAC rate 
     self.adc_rate = 100e6/50            # ADC rate (2MS/s complex samples)
     self.decim     = 5                    # Decimation (downsampling factor)
-    self.ampl     = 0.1                  # Output signal amplitude (signal power vary for different RFX900 cards)
+    self.ampl     = 0.1                # Output signal amplitude (signal power vary for different RFX900 cards)
     self.freq     = 910e6                # Modulation frequency (can be set between 902-920)
     self.rx_gain   = 20                   # RX Gain (gain at receiver)
     self.tx_gain   = 13                    # RFX900 no Tx gain option
@@ -100,7 +99,7 @@ class reader_top_block(gr.top_block):
       self.connect(self.source, self.file_sink_source)
 
     else :  # Offline Data
-      self.file_source               = blocks.file_source(gr.sizeof_gr_complex*1, "../misc/data/file_source_test",False)   ## instead of uhd.usrp_source
+      self.file_source               = blocks.file_source(gr.sizeof_gr_complex*1, "../misc/data/out",False)   ## instead of uhd.usrp_source
       self.file_sink                  = blocks.file_sink(gr.sizeof_gr_complex*1,   "../misc/data/file_sink", False)     ## instead of uhd.usrp_sink
  
       ######## Connections ######### 

@@ -653,7 +653,7 @@ std::vector<float> tag_decoder_impl::tag_detection_viterbi_EPC(std::vector<gr_co
         if (number_of_quart_bits == 4*(RN16_BITS-1))
         {  
           GR_LOG_EMERG(d_debug, "RN16 DECODED");
-	        RN16_bits = tag_detection_viterbi_RN16(RN16_samples_complex);
+	        RN16_bits = tag_detection_miller_RN16(RN16_samples_complex);
           for(int bit=0; bit<RN16_bits.size(); bit++)
           {
             out[written] =  RN16_bits[bit];
@@ -711,7 +711,7 @@ std::vector<float> tag_decoder_impl::tag_detection_viterbi_EPC(std::vector<gr_co
         produce(1,written_sync);
         */
 
-        EPC_bits   = tag_detection_viterbi_EPC(EPC_samples_complex,EPC_index);
+        EPC_bits   = tag_detection_miller_EPC(EPC_samples_complex,EPC_index);
 /*
         for(int bit=0; bit<EPC_bits.size(); bit++)
         {
